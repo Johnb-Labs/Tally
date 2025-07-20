@@ -14,9 +14,12 @@ Preferred communication style: Simple, everyday language.
 - ✓ Created comprehensive USER_GUIDE.md with step-by-step instructions
 - ✓ Added role-specific guides for Admin, Uploader, and User accounts
 - ✓ Included troubleshooting section and general features guide
+- ✓ Created DEPLOYMENT_GUIDE.html for Linux server deployment
+- ✓ Added complete server setup instructions with PostgreSQL, Nginx, SSL
 - ✓ Comprehensive dark mode functionality implemented across all pages
 - ✓ Enhanced Landing page with video background and improved branding layout
 - ✓ Fixed authentication API calls in Login/Register forms
+
 
 ## System Architecture
 

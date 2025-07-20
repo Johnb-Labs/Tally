@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally by JBLabs - Linux Server Deployment Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        }
+        h1 {
+            color: #1976D2;
+            border-bottom: 3px solid #1976D2;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #424242;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #1976D2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .requirement-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .warning-box {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .success-box {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .code-block {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .step-section {
+            background: #f8f9fa;
+            border-left: 4px solid #1976D2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .command {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .file-content {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        ol, ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .checklist {
+            background: #f0f8ff;
+            border: 1px solid #87ceeb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .checklist ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .checklist li::before {
+            content: "☐ ";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        @media print {
+            body {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .step-section {
+                break-inside: avoid;
+            }
+            .code-block, .command {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tally by JBLabs - Linux Server Deployment Guide</h1>
+
+    <div class="requirement-box">
+        <h3>📋 Prerequisites</h3>
+        <ul>
+            <li><strong>Linux Server:</strong> Ubuntu 20.04+, Debian 11+, CentOS 7+, or RHEL 8+</li>
+            <li><strong>RAM:</strong> Minimum 2GB, Recommended 4GB+</li>
+            <li><strong>Storage:</strong> Minimum 10GB free space</li>
+            <li><strong>Network:</strong> Internet access for package installation</li>
+            <li><strong>Access:</strong> SSH access with sudo privileges</li>
+            <li><strong>Domain:</strong> A domain name pointing to your server (optional but recommended)</li>
+        </ul>
+    </div>
+
+    <h2>Table of Contents</h2>
+    <ol>
+        <li><a href="#server-setup">Server Initial Setup</a></li>
+        <li><a href="#nodejs-install">Install Node.js and npm</a></li>
+        <li><a href="#postgresql-setup">Install and Configure PostgreSQL</a></li>
+        <li><a href="#nginx-setup">Install and Configure Nginx</a></li>
+        <li><a href="#app-deployment">Deploy the Application</a></li>
+        <li><a href="#ssl-setup">SSL Certificate Setup</a></li>
+        <li><a href="#process-management">Process Management with PM2</a></li>
+        <li><a href="#monitoring">Monitoring and Logs</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
+    </ol>
+
+    <div class="page-break"></div>
+
+    <h2 id="server-setup">1. Server Initial Setup</h2>
+
+    <div class="step-section">
+        <h3>Step 1.1: Connect to Your Server</h3>
+        <div class="command">ssh root@your-server-ip</div>
+        <p>Replace <code>your-server-ip</code> with your actual server IP address.</p>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 1.2: Update System Packages</h3>
+        <div class="command"># For Ubuntu/Debian:
+sudo apt update && sudo apt upgrade -y
+
+# For CentOS/RHEL:
+sudo yum update -y</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 1.3: Install Essential Tools</h3>
+        <div class="command"># For Ubuntu/Debian:
+sudo apt install -y curl wget git unzip software-properties-common
+
+# For CentOS/RHEL:
+sudo yum install -y curl wget git unzip epel-release</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 1.4: Create Application User (Recommended)</h3>
+        <div class="command"># Create a dedicated user for the application
+sudo adduser tally
+sudo usermod -aG sudo tally
+
+# Switch to the new user
+su - tally</div>
+        <div class="warning-box">
+            <strong>Security Note:</strong> Running applications as a non-root user is a security best practice.
+        </div>
+    </div>
+
+    <h2 id="nodejs-install">2. Install Node.js and npm</h2>
+
+    <div class="step-section">
+        <h3>Step 2.1: Install Node.js 20 (LTS)</h3>
+        <div class="command"># Download and install Node.js using NodeSource repository
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# For CentOS/RHEL:
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo yum install -y nodejs</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 2.2: Verify Installation</h3>
+        <div class="command">node --version
+npm --version</div>
+        <p>You should see Node.js version 20.x.x and npm version 10.x.x or higher.</p>
+    </div>
+
+    <h2 id="postgresql-setup">3. Install and Configure PostgreSQL</h2>
+
+    <div class="step-section">
+        <h3>Step 3.1: Install PostgreSQL</h3>
+        <div class="command"># For Ubuntu/Debian:
+sudo apt install -y postgresql postgresql-contrib
+
+# For CentOS/RHEL:
+sudo yum install -y postgresql postgresql-server postgresql-contrib
+sudo postgresql-setup initdb</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 3.2: Start and Enable PostgreSQL</h3>
+        <div class="command">sudo systemctl start postgresql
+sudo systemctl enable postgresql</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 3.3: Configure PostgreSQL</h3>
+        <div class="command"># Switch to postgres user
+sudo -i -u postgres
+
+# Create database and user for Tally
+psql << EOF
+CREATE DATABASE tally_db;
+CREATE USER tally_user WITH ENCRYPTED PASSWORD 'your_secure_password_here';
+GRANT ALL PRIVILEGES ON DATABASE tally_db TO tally_user;
+ALTER USER tally_user CREATEDB;
+\q
+EOF
+
+# Exit postgres user
+exit</div>
+        <div class="warning-box">
+            <strong>Important:</strong> Replace 'your_secure_password_here' with a strong password. Save this password as you'll need it for the application configuration.
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 3.4: Configure PostgreSQL Authentication</h3>
+        <p>Edit the PostgreSQL configuration to allow password authentication:</p>
+        <div class="command">sudo nano /etc/postgresql/*/main/pg_hba.conf</div>
+        <p>Find the line that looks like:</p>
+        <div class="file-content">local   all             all                                     peer</div>
+        <p>Change it to:</p>
+        <div class="file-content">local   all             all                                     md5</div>
+        <p>Then restart PostgreSQL:</p>
+        <div class="command">sudo systemctl restart postgresql</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 3.5: Test Database Connection</h3>
+        <div class="command">psql -h localhost -U tally_user -d tally_db</div>
+        <p>You should be prompted for the password and then see the PostgreSQL prompt. Type <code>\q</code> to exit.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 id="nginx-setup">4. Install and Configure Nginx</h2>
+
+    <div class="step-section">
+        <h3>Step 4.1: Install Nginx</h3>
+        <div class="command"># For Ubuntu/Debian:
+sudo apt install -y nginx
+
+# For CentOS/RHEL:
+sudo yum install -y nginx</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 4.2: Start and Enable Nginx</h3>
+        <div class="command">sudo systemctl start nginx
+sudo systemctl enable nginx</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 4.3: Configure Firewall (if enabled)</h3>
+        <div class="command"># For Ubuntu (ufw):
+sudo ufw allow 'Nginx Full'
+sudo ufw allow OpenSSH
+sudo ufw enable
+
+# For CentOS/RHEL (firewalld):
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload</div>
+    </div>
+
+    <h2 id="app-deployment">5. Deploy the Application</h2>
+
+    <div class="step-section">
+        <h3>Step 5.1: Clone the Repository</h3>
+        <div class="command"># Navigate to home directory
+cd /home/tally
+
+# Clone your repository (replace with your actual GitHub URL)
+git clone https://github.com/yourusername/tally-app.git
+cd tally-app</div>
+        <div class="warning-box">
+            <strong>Note:</strong> If your repository is private, you'll need to set up SSH keys or use a personal access token for authentication.
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.2: Install Dependencies</h3>
+        <div class="command"># Install all project dependencies
+npm install
+
+# Install production dependencies only (optional, for production)
+# npm ci --only=production</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.3: Configure Environment Variables</h3>
+        <p>Create a production environment file:</p>
+        <div class="command">nano .env.production</div>
+        <p>Add the following configuration:</p>
+        <div class="file-content">NODE_ENV=production
+PORT=5000
+
+# Database Configuration
+DATABASE_URL=postgresql://tally_user:your_secure_password_here@localhost:5432/tally_db
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=tally_db
+PGUSER=tally_user
+PGPASSWORD=your_secure_password_here
+
+# Session Configuration
+SESSION_SECRET=your_very_long_random_session_secret_here
+
+# Application Configuration
+REPL_ID=tally-production
+REPLIT_DOMAINS=yourdomain.com,www.yourdomain.com
+ISSUER_URL=https://yourdomain.com/oidc</div>
+        <div class="warning-box">
+            <strong>Security Critical:</strong> 
+            <ul>
+                <li>Replace all password placeholders with your actual secure passwords</li>
+                <li>Generate a strong session secret (at least 64 random characters)</li>
+                <li>Replace yourdomain.com with your actual domain</li>
+                <li>Keep this file secure and never commit it to version control</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.4: Set File Permissions</h3>
+        <div class="command"># Set appropriate permissions
+chmod 600 .env.production
+chown tally:tally .env.production
+
+# Make sure the tally user owns all application files
+sudo chown -R tally:tally /home/tally/tally-app</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.5: Initialize Database Schema</h3>
+        <div class="command"># Load environment variables and run database setup
+export $(cat .env.production | xargs)
+
+# Push database schema
+npm run db:push
+
+# If you have seed data, run:
+# npm run db:seed</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.6: Build the Application</h3>
+        <div class="command"># Build the production version
+npm run build</div>
+        <p>This will create optimized production files in the <code>dist</code> directory.</p>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.7: Test the Application</h3>
+        <div class="command"># Test run the application
+npm start</div>
+        <p>You should see output indicating the server is running on port 5000. Press Ctrl+C to stop the test run.</p>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 id="ssl-setup">6. SSL Certificate Setup</h2>
+
+    <div class="step-section">
+        <h3>Step 6.1: Install Certbot</h3>
+        <div class="command"># For Ubuntu/Debian:
+sudo apt install -y certbot python3-certbot-nginx
+
+# For CentOS/RHEL:
+sudo yum install -y certbot python3-certbot-nginx</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 6.2: Configure Nginx for Tally</h3>
+        <p>Create an Nginx configuration file for your application:</p>
+        <div class="command">sudo nano /etc/nginx/sites-available/tally</div>
+        <p>Add the following configuration:</p>
+        <div class="file-content">server {
+    listen 80;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # Redirect to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name yourdomain.com www.yourdomain.com;
+
+    # SSL Configuration (will be configured by Certbot)
+    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+
+    # Security headers
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # File upload size limit
+    client_max_body_size 50M;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+    }
+
+    # Static file serving (if needed)
+    location /static/ {
+        alias /home/tally/tally-app/dist/public/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}</div>
+        <div class="warning-box">
+            <strong>Important:</strong> Replace 'yourdomain.com' with your actual domain name throughout the configuration.
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 6.3: Enable the Site</h3>
+        <div class="command"># Enable the site
+sudo ln -s /etc/nginx/sites-available/tally /etc/nginx/sites-enabled/
+
+# Remove default site (optional)
+sudo rm /etc/nginx/sites-enabled/default
+
+# Test Nginx configuration
+sudo nginx -t
+
+# Reload Nginx
+sudo systemctl reload nginx</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 6.4: Obtain SSL Certificate</h3>
+        <div class="command"># Get SSL certificate from Let's Encrypt
+sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com</div>
+        <p>Follow the prompts to complete the SSL certificate setup. Certbot will automatically update your Nginx configuration.</p>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 6.5: Test SSL Auto-Renewal</h3>
+        <div class="command"># Test certificate renewal
+sudo certbot renew --dry-run</div>
+        <p>This should complete without errors.</p>
+    </div>
+
+    <h2 id="process-management">7. Process Management with PM2</h2>
+
+    <div class="step-section">
+        <h3>Step 7.1: Install PM2</h3>
+        <div class="command"># Install PM2 globally
+sudo npm install -g pm2</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 7.2: Create PM2 Configuration</h3>
+        <p>Create a PM2 ecosystem file:</p>
+        <div class="command">nano ecosystem.config.js</div>
+        <p>Add the following configuration:</p>
+        <div class="file-content">module.exports = {
+  apps: [{
+    name: 'tally',
+    script: 'npm',
+    args: 'start',
+    cwd: '/home/tally/tally-app',
+    env: {
+      NODE_ENV: 'production',
+    },
+    env_file: '/home/tally/tally-app/.env.production',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    error_file: '/home/tally/logs/tally-error.log',
+    out_file: '/home/tally/logs/tally-out.log',
+    log_file: '/home/tally/logs/tally-combined.log',
+    time: true
+  }]
+};</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 7.3: Create Log Directory</h3>
+        <div class="command">mkdir -p /home/tally/logs</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 7.4: Start Application with PM2</h3>
+        <div class="command"># Start the application
+pm2 start ecosystem.config.js
+
+# Save PM2 configuration
+pm2 save
+
+# Setup PM2 to start on boot
+pm2 startup
+# Follow the instructions provided by the startup command</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 7.5: PM2 Management Commands</h3>
+        <div class="command"># Check application status
+pm2 status
+
+# View logs
+pm2 logs tally
+
+# Restart application
+pm2 restart tally
+
+# Stop application
+pm2 stop tally
+
+# Monitor application
+pm2 monit</div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 id="monitoring">8. Monitoring and Logs</h2>
+
+    <div class="step-section">
+        <h3>Step 8.1: Application Logs</h3>
+        <div class="command"># View real-time logs
+pm2 logs tally --lines 100
+
+# View error logs only
+tail -f /home/tally/logs/tally-error.log
+
+# View all logs
+tail -f /home/tally/logs/tally-combined.log</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 8.2: Nginx Logs</h3>
+        <div class="command"># View Nginx access logs
+sudo tail -f /var/log/nginx/access.log
+
+# View Nginx error logs
+sudo tail -f /var/log/nginx/error.log</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 8.3: PostgreSQL Logs</h3>
+        <div class="command"># View PostgreSQL logs
+sudo tail -f /var/log/postgresql/postgresql-*-main.log</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 8.4: System Resource Monitoring</h3>
+        <div class="command"># Check system resources
+htop
+
+# Check disk space
+df -h
+
+# Check memory usage
+free -h
+
+# Check process information
+ps aux | grep node</div>
+    </div>
+
+    <h2 id="troubleshooting">9. Troubleshooting</h2>
+
+    <div class="step-section">
+        <h3>Common Issues and Solutions</h3>
+        
+        <h4>Application Won't Start</h4>
+        <div class="warning-box">
+            <strong>Check:</strong>
+            <ul>
+                <li>Environment variables are correctly set</li>
+                <li>Database connection is working</li>
+                <li>Port 5000 is not being used by another service</li>
+                <li>All dependencies are installed</li>
+            </ul>
+            <strong>Debug commands:</strong>
+            <div class="command">pm2 logs tally
+npm run build
+lsof -i :5000</div>
+        </div>
+
+        <h4>Database Connection Issues</h4>
+        <div class="warning-box">
+            <strong>Check:</strong>
+            <ul>
+                <li>PostgreSQL service is running</li>
+                <li>Database credentials are correct</li>
+                <li>Database exists and user has permissions</li>
+            </ul>
+            <strong>Debug commands:</strong>
+            <div class="command">sudo systemctl status postgresql
+psql -h localhost -U tally_user -d tally_db</div>
+        </div>
+
+        <h4>SSL Certificate Issues</h4>
+        <div class="warning-box">
+            <strong>Check:</strong>
+            <ul>
+                <li>Domain DNS is pointing to your server</li>
+                <li>Firewall allows HTTP/HTTPS traffic</li>
+                <li>Nginx configuration is correct</li>
+            </ul>
+            <strong>Debug commands:</strong>
+            <div class="command">sudo nginx -t
+sudo certbot certificates
+nslookup yourdomain.com</div>
+        </div>
+
+        <h4>File Upload Issues</h4>
+        <div class="warning-box">
+            <strong>Check:</strong>
+            <ul>
+                <li>Nginx client_max_body_size is sufficient</li>
+                <li>Disk space is available</li>
+                <li>Upload directory permissions are correct</li>
+            </ul>
+            <strong>Debug commands:</strong>
+            <div class="command">df -h
+ls -la /home/tally/tally-app/uploads/</div>
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Performance Optimization</h3>
+        <h4>Database Optimization</h4>
+        <div class="command"># Optimize PostgreSQL for production
+sudo nano /etc/postgresql/*/main/postgresql.conf
+
+# Add these optimizations:
+# shared_buffers = 256MB
+# effective_cache_size = 1GB
+# maintenance_work_mem = 64MB
+# checkpoint_completion_target = 0.9
+# wal_buffers = 16MB
+# default_statistics_target = 100
+
+# Restart PostgreSQL
+sudo systemctl restart postgresql</div>
+
+        <h4>Nginx Optimization</h4>
+        <div class="command"># Add to nginx.conf in http block
+sudo nano /etc/nginx/nginx.conf
+
+# Add these optimizations:
+# gzip on;
+# gzip_vary on;
+# gzip_min_length 1024;
+# gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+
+# Restart Nginx
+sudo systemctl restart nginx</div>
+    </div>
+
+    <div class="success-box">
+        <h3>🎉 Deployment Complete!</h3>
+        <p>Your Tally application should now be running at <strong>https://yourdomain.com</strong></p>
+        
+        <div class="checklist">
+            <h4>Final Checklist:</h4>
+            <ul>
+                <li>Application is accessible via HTTPS</li>
+                <li>SSL certificate is valid and auto-renewal is configured</li>
+                <li>Database is properly configured and accessible</li>
+                <li>PM2 is managing the application process</li>
+                <li>Nginx is serving the application with proper headers</li>
+                <li>Logs are being written to the expected locations</li>
+                <li>Firewall is configured to allow necessary traffic</li>
+                <li>Backup strategy is implemented (recommended)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Regular Maintenance Tasks</h3>
+        <h4>Weekly Tasks</h4>
+        <ul>
+            <li>Check application logs for errors</li>
+            <li>Monitor system resources (CPU, memory, disk)</li>
+            <li>Review SSL certificate expiration dates</li>
+        </ul>
+        
+        <h4>Monthly Tasks</h4>
+        <ul>
+            <li>Update system packages</li>
+            <li>Review and rotate logs if needed</li>
+            <li>Backup database and application files</li>
+            <li>Update application dependencies if needed</li>
+        </ul>
+
+        <h4>Backup Commands</h4>
+        <div class="command"># Database backup
+pg_dump -h localhost -U tally_user tally_db > backup_$(date +%Y%m%d).sql
+
+# Application backup
+tar -czf tally_backup_$(date +%Y%m%d).tar.gz /home/tally/tally-app</div>
+    </div>
+
+    <div style="margin-top: 50px; text-align: center; color: #666; font-size: 14px;">
+        <hr style="margin: 20px 0;">
+        <p><strong>Tally by JBLabs</strong> - Linux Server Deployment Guide</p>
+        <p>Generated: January 20, 2025</p>
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <p><strong>To save this as PDF:</strong></p>
+            <p>1. Open this HTML file in your browser</p>
+            <p>2. Press Ctrl+P (or Cmd+P on Mac)</p>
+            <p>3. Select "Save as PDF" as destination</p>
+            <p>4. Choose appropriate settings and save</p>
+        </div>
+    </div>
+</body>
+</html>
