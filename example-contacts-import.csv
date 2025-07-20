@@ -1,0 +1,16 @@
+First Name,Last Name,Email,Phone,Company,Job Title,Address,City,State,Zip Code,Country,Notes,Category
+John,Doe,john.doe@email.com,(555) 123-4567,ABC Corporation,Sales Manager,"123 Main St, Suite 100",New York,NY,10001,USA,High priority client for Q4 follow-up,Business
+Jane,Smith,jane.smith@company.org,+1-555-987-6543,Tech Solutions Inc,Software Engineer,"456 Oak Avenue, Apt 2B",San Francisco,CA,94102,USA,Technical contact for project integration,Technical
+Michael,Johnson,m.johnson@gmail.com,555.246.8135,Johnson Consulting,Independent Consultant,"789 Pine Road",Austin,TX,73301,USA,Specializes in digital marketing strategies,Consultant
+Sarah,Williams,sarah.w@enterprise.net,(555) 369-2580,Enterprise Systems,Project Director,"321 Elm Street, Floor 15",Chicago,IL,60601,USA,Key decision maker for system implementations,Business
+David,Brown,david.brown@startup.io,555-741-9630,InnovateTech Startup,CTO,"654 Birch Lane",Seattle,WA,98101,USA,Early adopter - interested in beta testing,Technical
+Emily,Davis,emily.davis@nonprofit.org,(555) 852-7410,Community Foundation,Program Manager,"987 Cedar Drive",Denver,CO,80202,USA,Manages educational outreach programs,Non-Profit
+Robert,Miller,robert.miller@manufacturing.com,+1 555 963 8520,Miller Manufacturing,Operations Manager,"147 Industrial Blvd",Detroit,MI,48201,USA,Handles supply chain optimization projects,Business
+Lisa,Wilson,lisa.wilson@healthcare.med,(555) 159-7530,Regional Medical Center,IT Director,"258 Hospital Way",Miami,FL,33101,USA,Responsible for healthcare technology initiatives,Healthcare
+James,Garcia,j.garcia@education.edu,555-357-1590,State University,Research Coordinator,"369 Campus Drive",Boston,MA,02101,USA,Coordinates research partnerships with industry,Education
+Amanda,Martinez,amanda.m@retail.store,(555) 753-9510,Retail Solutions Group,Store Manager,"741 Shopping Center",Los Angeles,CA,90210,USA,Manages multi-location retail operations,Retail
+Christopher,Anderson,chris.anderson@finance.bank,555.951.7530,First National Bank,Investment Advisor,"852 Financial Plaza",Philadelphia,PA,19101,USA,Specializes in corporate investment strategies,Financial
+Michelle,Taylor,michelle.taylor@consulting.biz,(555) 357-9510,Strategic Consulting,Senior Analyst,"963 Business Park Dr",Atlanta,GA,30301,USA,Leads market analysis and strategic planning,Consultant
+Kevin,Thomas,kevin.thomas@logistics.com,+1-555-159-3570,Global Logistics Corp,Warehouse Supervisor,"159 Distribution Center Rd",Phoenix,AZ,85001,USA,Oversees inventory management systems,Logistics
+Rachel,Jackson,rachel.j@marketing.agency,(555) 753-1590,Creative Marketing Agency,Creative Director,"357 Design District",Nashville,TN,37201,USA,Develops brand strategies for tech companies,Marketing
+Daniel,White,daniel.white@realestate.com,555-951-3570,Prime Real Estate,Senior Broker,"753 Property Lane",Orlando,FL,32801,USA,Handles commercial real estate transactions,Real Estate
