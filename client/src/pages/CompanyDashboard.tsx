@@ -50,18 +50,40 @@ export default function CompanyDashboard() {
 
   if (isLoading) {
     return (
-      <div className="p-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="space-y-6">
+        {/* Stats Cards Loading */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">--</div>
-              </CardContent>
-            </Card>
+            <div key={i} className="bg-card rounded-xl border p-6">
+              <div className="animate-pulse">
+                <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
+                <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-muted rounded w-1/4"></div>
+              </div>
+            </div>
           ))}
+        </div>
+        
+        {/* Charts Loading */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-muted rounded w-2/3"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] bg-muted rounded animate-pulse"></div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <div className="h-6 bg-muted rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-muted rounded w-2/3"></div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px] bg-muted rounded animate-pulse"></div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -69,7 +91,7 @@ export default function CompanyDashboard() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-destructive">Error Loading Company Dashboard</CardTitle>
@@ -127,142 +149,217 @@ export default function CompanyDashboard() {
 
   const maxContacts = Math.max(...companyStats.divisionStats.map(d => d.contactCount));
 
+  // Create stats data in the same format as regular dashboard
+  const companyStatsData = [
+    {
+      label: "Total Contacts",
+      value: companyStats.totalContacts.toLocaleString(),
+      change: "+Company Wide",
+      icon: FileText,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+    },
+    {
+      label: "Active Divisions",
+      value: companyStats.totalDivisions.toString(),
+      change: "Operating",
+      icon: Building2,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
+    },
+    {
+      label: "System Users",
+      value: companyStats.totalActiveUsers.toString(),
+      change: "Active",
+      icon: Users,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+    },
+    {
+      label: "Total Uploads",
+      value: companyStats.totalUploads.toString(),
+      change: "All Time",
+      icon: Upload,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
+    },
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Company Dashboard</h1>
-          <p className="text-muted-foreground">
-            Overview of all divisions and company-wide statistics
-          </p>
-        </div>
-        <Badge variant="outline" className="flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          Executive View
-        </Badge>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{companyStats.totalContacts.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">
-              Across all divisions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Divisions</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{companyStats.totalDivisions}</div>
-            <p className="text-xs text-muted-foreground">
-              Operating divisions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{companyStats.totalActiveUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              System users
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Uploads</CardTitle>
-            <Upload className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{companyStats.totalUploads}</div>
-            <p className="text-xs text-muted-foreground">
-              Data imports
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Division Performance Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Division Performance</CardTitle>
-          <CardDescription>
-            Contact counts and active users by division
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[400px]">
-            <Bar data={chartData} options={chartOptions} />
+    <div className="space-y-6">
+      {/* Stats Cards - Same styling as regular dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {companyStatsData.map((stat, index) => (
+          <div key={index} className="bg-card rounded-xl border p-6 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between mb-4">
+              <div className={`p-3 rounded-xl ${stat.bgColor}`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
+              </div>
+              <Badge variant="outline" className="text-xs">
+                <Activity className="h-3 w-3 mr-1" />
+                Company
+              </Badge>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
+              <p className="text-3xl font-bold">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1">{stat.change}</p>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
 
-      {/* Division Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Division Details</CardTitle>
-          <CardDescription>
-            Detailed breakdown of each division's metrics
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {companyStats.divisionStats.map((division) => (
-              <div
-                key={division.divisionId}
-                className="flex items-center justify-between p-4 border rounded-lg"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Building2 className="h-5 w-5 text-muted-foreground" />
-                    <h3 className="font-semibold">{division.divisionName}</h3>
-                  </div>
-                  
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Contacts:</span>
-                      <span className="ml-2 font-medium">{division.contactCount.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Users:</span>
-                      <span className="ml-2 font-medium">{division.activeUsers}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Recent Uploads:</span>
-                      <span className="ml-2 font-medium">{division.recentUploads}</span>
-                    </div>
-                  </div>
+      {/* Charts Row - Same layout as regular dashboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Division Performance</CardTitle>
+            <CardDescription>
+              Contact counts and active users by division
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <Bar data={chartData} options={chartOptions} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Company Overview</CardTitle>
+              <CardDescription>Quick statistics across all divisions</CardDescription>
+            </div>
+            <Badge variant="secondary">Executive</Badge>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-blue-600" />
                 </div>
-                
-                <div className="w-32">
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Contacts vs Max
-                  </div>
-                  <Progress 
-                    value={maxContacts > 0 ? (division.contactCount / maxContacts) * 100 : 0}
-                    className="h-2"
-                  />
+                <div>
+                  <p className="text-sm font-medium">Total Database</p>
+                  <p className="text-xs text-muted-foreground">All contact records</p>
                 </div>
               </div>
+              <div className="text-right">
+                <p className="text-lg font-bold">{companyStats.totalContacts.toLocaleString()}</p>
+                <p className="text-xs text-muted-foreground">contacts</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Active Divisions</p>
+                  <p className="text-xs text-muted-foreground">Operating units</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold">{companyStats.totalDivisions}</p>
+                <p className="text-xs text-muted-foreground">divisions</p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Users className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">System Users</p>
+                  <p className="text-xs text-muted-foreground">Active accounts</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold">{companyStats.totalActiveUsers}</p>
+                <p className="text-xs text-muted-foreground">users</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Division Details - Same styling as regular dashboard tables */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Division Breakdown</CardTitle>
+              <CardDescription>Contact distribution by division</CardDescription>
+            </div>
+            <Badge variant="outline">Company View</Badge>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {companyStats.divisionStats.length > 0 ? (
+              companyStats.divisionStats.map((division) => {
+                const percentage = companyStats.totalContacts > 0 ? 
+                  Math.round((division.contactCount / companyStats.totalContacts) * 100) : 0;
+                
+                return (
+                  <div key={division.divisionId} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500" />
+                      <span className="text-sm font-medium">{division.divisionName}</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-sm text-muted-foreground">
+                        {division.contactCount.toLocaleString()}
+                      </span>
+                      <div className="w-16 bg-muted rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full bg-blue-500" 
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No divisions found</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Latest company-wide activity</CardDescription>
+            </div>
+            <Badge variant="outline">Live</Badge>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {companyStats.divisionStats.map((division) => (
+              <div key={division.divisionId} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{division.divisionName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {division.activeUsers} users • {division.recentUploads} recent uploads
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="secondary">
+                  {division.contactCount.toLocaleString()}
+                </Badge>
+              </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
