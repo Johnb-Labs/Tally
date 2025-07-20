@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated, requireRole } from "./auth";
 import { 
   insertDivisionSchema,
   insertBrandingSettingsSchema,
@@ -41,7 +41,7 @@ const upload = multer({
 
 // Helper function to check user role
 function hasRole(user: any, requiredRole: string | string[]) {
-  const userRole = user?.claims?.role || 'user';
+  const userRole = user?.role || 'user';
   if (Array.isArray(requiredRole)) {
     return requiredRole.includes(userRole);
   }
@@ -76,30 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      // Get user divisions
-      const userDivisions = await storage.getUserDivisions(userId);
-      
-      res.json({
-        ...user,
-        divisions: userDivisions.map(ud => ({
-          ...ud.division,
-          canManage: ud.canManage,
-        })),
-      });
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Note: Auth routes are handled in setupAuth function
 
   // User Management Routes (Admin only)
   app.get("/api/users", isAuthenticated, async (req: any, res) => {
@@ -129,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedUser = await storage.updateUser(id, updates);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'user_updated',
         'user',
         id,
@@ -167,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const division = await storage.createDivision(divisionData);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'division_created',
         'division',
         division.id.toString(),
@@ -204,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'user_division_assigned',
         'user_division',
         assignment.id.toString(),
@@ -242,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const settings = await storage.updateBrandingSettings(brandingData);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'branding_updated',
         'branding_settings',
         settings.id.toString(),
@@ -286,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const category = await storage.createContactCategory(categoryData);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'contact_category_created',
         'contact_category',
         category.id.toString(),
@@ -324,14 +301,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         originalName: req.file.originalname,
         fileSize: req.file.size,
         mimeType: req.file.mimetype,
-        uploadedBy: req.user.claims.sub,
+        uploadedBy: req.user.id,
         divisionId: divisionId ? parseInt(divisionId) : null,
       };
       
       const upload = await storage.createUpload(uploadData);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'file_uploaded',
         'upload',
         upload.id.toString(),
@@ -411,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const contact = await storage.createContact(contactData);
       
       await logAudit(
-        req.user.claims.sub,
+        req.user.id,
         'contact_created',
         'contact',
         contact.id.toString(),

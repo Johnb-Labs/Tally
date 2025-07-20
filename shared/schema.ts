@@ -29,14 +29,18 @@ export const sessions = pgTable(
 // User roles enum
 export const userRoleEnum = pgEnum("user_role", ["admin", "uploader", "user"]);
 
-// Users table (mandatory for Replit Auth)
+// Users table for internal authentication
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
+  id: uuid("id").defaultRandom().primaryKey(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  password: varchar("password", { length: 255 }).notNull(), // hashed password
+  firstName: varchar("first_name", { length: 100 }),
+  lastName: varchar("last_name", { length: 100 }),
   profileImageUrl: varchar("profile_image_url"),
   role: userRoleEnum("role").default("user").notNull(),
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  emailVerified: boolean("email_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -57,7 +61,7 @@ export const divisions = pgTable("divisions", {
 // User division permissions
 export const userDivisions = pgTable("user_divisions", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: uuid("user_id").notNull().references(() => users.id),
   divisionId: integer("division_id").notNull().references(() => divisions.id),
   canManage: boolean("can_manage").default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -105,7 +109,7 @@ export const uploads = pgTable("uploads", {
   recordsSkipped: integer("records_skipped"),
   errorMessage: text("error_message"),
   fieldMapping: jsonb("field_mapping"), // maps CSV fields to contact fields
-  uploadedBy: varchar("uploaded_by").notNull().references(() => users.id),
+  uploadedBy: uuid("uploaded_by").notNull().references(() => users.id),
   divisionId: integer("division_id").references(() => divisions.id),
   createdAt: timestamp("created_at").defaultNow(),
   completedAt: timestamp("completed_at"),
@@ -139,7 +143,7 @@ export const contacts = pgTable("contacts", {
 // Audit log for tracking user actions
 export const auditLogs = pgTable("audit_logs", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: uuid("user_id").notNull().references(() => users.id),
   action: varchar("action", { length: 255 }).notNull(), // e.g., "contact_created", "user_updated"
   entityType: varchar("entity_type", { length: 100 }), // e.g., "contact", "user", "division"
   entityId: varchar("entity_id"),
@@ -267,10 +271,42 @@ export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
   createdAt: true,
 });
 
+// Authentication schemas
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const registerSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+});
+
+export const updateProfileSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Confirm password is required"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type LoginData = z.infer<typeof loginSchema>;
+export type RegisterData = z.infer<typeof registerSchema>;
+export type UpdateProfileData = z.infer<typeof updateProfileSchema>;
+export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
 export type Division = typeof divisions.$inferSelect;
 export type InsertDivision = z.infer<typeof insertDivisionSchema>;
 export type UserDivision = typeof userDivisions.$inferSelect;

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBrand } from "@/contexts/BrandContext";
 import { Database, Upload, BarChart3, Users, Shield, Palette } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Landing() {
   const { getEffectiveLogo, getEffectiveOrganizationName } = useBrand();
@@ -70,20 +71,23 @@ export default function Landing() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="px-8 py-3 text-lg"
-                onClick={() => window.location.href = "/api/login"}
-              >
-                Get Started
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="px-8 py-3 text-lg"
-              >
-                Learn More
-              </Button>
+              <Link href="/login">
+                <Button 
+                  size="lg" 
+                  className="px-8 py-3 text-lg"
+                >
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="px-8 py-3 text-lg"
+                >
+                  Create Account
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
