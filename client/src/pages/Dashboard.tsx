@@ -24,7 +24,8 @@ import {
   UserCog,
   CloudUpload,
   FileSpreadsheet,
-  Globe
+  Globe,
+  Download
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -151,6 +152,10 @@ export default function Dashboard() {
                     showAllOption={true}
                   />
                 )}
+                <Button variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Report
+                </Button>
               </div>
             }
           />
@@ -180,6 +185,10 @@ export default function Dashboard() {
                   showAllOption={true}
                 />
               )}
+              <Button variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Export Report
+              </Button>
             </div>
           }
         />

@@ -522,12 +522,17 @@ export class DatabaseStorage implements IStorage {
     totalDivisions: number;
     totalActiveUsers: number;
     totalUploads: number;
+    totalEmails: number;
+    totalPhones: number;
     divisionStats: {
       divisionId: number;
       divisionName: string;
+      description?: string;
       contactCount: number;
       activeUsers: number;
       recentUploads: number;
+      emailCount: number;
+      phoneCount: number;
     }[];
   }> {
     // Get total counts
@@ -550,11 +555,31 @@ export class DatabaseStorage implements IStorage {
       .select({ count: count() })
       .from(uploads);
 
-    // Get division stats
+    // Get total emails and phones
+    const [emailsResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.email),
+        ne(contacts.email, "")
+      ));
+
+    const [phonesResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.phone),
+        ne(contacts.phone, "")
+      ));
+
+    // Get division stats with email and phone counts
     const divisionStats = await db
       .select({
         divisionId: divisions.id,
         divisionName: divisions.name,
+        description: divisions.description,
         contactCount: count(contacts.id),
       })
       .from(divisions)
@@ -563,7 +588,7 @@ export class DatabaseStorage implements IStorage {
         eq(contacts.isActive, true)
       ))
       .where(eq(divisions.isActive, true))
-      .groupBy(divisions.id, divisions.name);
+      .groupBy(divisions.id, divisions.name, divisions.description);
 
     // Get active users per division
     const userStats = await db
@@ -592,17 +617,50 @@ export class DatabaseStorage implements IStorage {
       ))
       .groupBy(uploads.divisionId);
 
+    // Get email counts per division
+    const emailStats = await db
+      .select({
+        divisionId: contacts.divisionId,
+        emailCount: count(contacts.id),
+      })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.email),
+        ne(contacts.email, "")
+      ))
+      .groupBy(contacts.divisionId);
+
+    // Get phone counts per division
+    const phoneStats = await db
+      .select({
+        divisionId: contacts.divisionId,
+        phoneCount: count(contacts.id),
+      })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.phone),
+        ne(contacts.phone, "")
+      ))
+      .groupBy(contacts.divisionId);
+
     // Combine stats
     const combinedStats = divisionStats.map(division => {
       const userStat = userStats.find(u => u.divisionId === division.divisionId);
       const uploadStat = uploadStats.find(u => u.divisionId === division.divisionId);
+      const emailStat = emailStats.find(e => e.divisionId === division.divisionId);
+      const phoneStat = phoneStats.find(p => p.divisionId === division.divisionId);
       
       return {
         divisionId: division.divisionId,
         divisionName: division.divisionName,
+        description: division.description,
         contactCount: division.contactCount,
         activeUsers: userStat?.activeUsers || 0,
         recentUploads: uploadStat?.recentUploads || 0,
+        emailCount: emailStat?.emailCount || 0,
+        phoneCount: phoneStat?.phoneCount || 0,
       };
     });
 
@@ -611,6 +669,8 @@ export class DatabaseStorage implements IStorage {
       totalDivisions: divisionsResult.count,
       totalActiveUsers: usersResult.count,
       totalUploads: uploadsResult.count,
+      totalEmails: emailsResult.count,
+      totalPhones: phonesResult.count,
       divisionStats: combinedStats,
     };
   }

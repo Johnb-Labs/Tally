@@ -8,6 +8,8 @@ import {
   FileText,
   Upload,
   Activity,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -34,12 +36,17 @@ interface CompanyStats {
   totalDivisions: number;
   totalActiveUsers: number;
   totalUploads: number;
+  totalEmails: number;
+  totalPhones: number;
   divisionStats: {
     divisionId: number;
     divisionName: string;
     contactCount: number;
     activeUsers: number;
     recentUploads: number;
+    emailCount: number;
+    phoneCount: number;
+    description?: string;
   }[];
 }
 
@@ -160,26 +167,26 @@ export default function CompanyDashboard() {
       bgColor: "bg-blue-100",
     },
     {
-      label: "Active Divisions",
-      value: companyStats.totalDivisions.toString(),
-      change: "Operating",
-      icon: Building2,
+      label: "Total Email Addresses",
+      value: (companyStats.totalEmails || 0).toLocaleString(),
+      change: "Active",
+      icon: Mail,
       color: "text-orange-600",
       bgColor: "bg-orange-100",
     },
     {
-      label: "System Users",
-      value: companyStats.totalActiveUsers.toString(),
+      label: "Total Phone Numbers",
+      value: (companyStats.totalPhones || 0).toLocaleString(),
       change: "Active",
-      icon: Users,
+      icon: Phone,
       color: "text-green-600",
       bgColor: "bg-green-100",
     },
     {
-      label: "Total Uploads",
-      value: companyStats.totalUploads.toString(),
-      change: "All Time",
-      icon: Upload,
+      label: "Active Divisions",
+      value: companyStats.totalDivisions.toString(),
+      change: "Operating",
+      icon: Building2,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
@@ -333,28 +340,45 @@ export default function CompanyDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest company-wide activity</CardDescription>
+              <CardTitle>Division Summary</CardTitle>
+              <CardDescription>Detailed information for all divisions</CardDescription>
             </div>
-            <Badge variant="outline">Live</Badge>
+            <Badge variant="outline">All Divisions</Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             {companyStats.divisionStats.map((division) => (
-              <div key={division.divisionId} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-green-600" />
+              <div key={division.divisionId} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{division.divisionName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {division.description || "No description available"}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">{division.divisionName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {division.activeUsers} users • {division.recentUploads} recent uploads
-                    </p>
+                  <Badge variant="secondary">
+                    {division.contactCount.toLocaleString()} contacts
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div className="text-center">
+                    <p className="font-semibold text-orange-600">{division.emailCount || 0}</p>
+                    <p className="text-muted-foreground">Emails</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-green-600">{division.phoneCount || 0}</p>
+                    <p className="text-muted-foreground">Phones</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-purple-600">{division.activeUsers}</p>
+                    <p className="text-muted-foreground">Users</p>
                   </div>
                 </div>
-                <Badge variant="secondary">
-                  {division.contactCount.toLocaleString()}
-                </Badge>
               </div>
             ))}
           </CardContent>
