@@ -135,27 +135,26 @@ export default function Dashboard() {
   // Show company dashboard for company view
   if (selectedView === "all") {
     return (
-      <div className="min-h-screen bg-background">
-        <TopHeader 
-          title="Dashboard"
-          description="Company-wide overview"
-        />
-        <div className="flex">
-          <Sidebar />
-          <main className="flex-1 ml-64">
-            <div className="p-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                {canAccessCompanyView && (
-                  <DivisionSelector
-                    value={selectedView}
-                    onValueChange={setSelectedView}
-                    showAllOption={true}
-                  />
-                )}
-              </div>
-              <CompanyDashboard />
-            </div>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <Sidebar />
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <TopHeader 
+            title="Dashboard"
+            description="Company-wide overview across all divisions"
+            actions={
+              canAccessCompanyView ? (
+                <DivisionSelector
+                  value={selectedView}
+                  onValueChange={setSelectedView}
+                  showAllOption={true}
+                />
+              ) : undefined
+            }
+          />
+          
+          <main className="flex-1 overflow-y-auto p-6 space-y-6">
+            <CompanyDashboard />
           </main>
         </div>
       </div>
