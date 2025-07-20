@@ -51,6 +51,14 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isRoleDialogOpen, setIsRoleDialogOpen] = useState(false);
   const [isDivisionDialogOpen, setIsDivisionDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({
+    email: '',
+    firstName: '',
+    lastName: '',
+    role: 'user',
+    divisionIds: [] as number[]
+  });
 
   // Redirect if not authenticated or not admin
   useEffect(() => {
@@ -160,6 +168,45 @@ export default function UserManagement() {
     },
   });
 
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: any) => {
+      return await apiRequest('POST', '/api/users', userData);
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "User created successfully",
+        description: `Temporary password: ${data.tempPassword}`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setIsCreateDialogOpen(false);
+      setNewUser({
+        email: '',
+        firstName: '',
+        lastName: '',
+        role: 'user',
+        divisionIds: []
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "User creation failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -213,6 +260,18 @@ export default function UserManagement() {
     }
   };
 
+  const handleCreateUser = () => {
+    if (!newUser.email || !newUser.firstName || !newUser.lastName) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    createUserMutation.mutate(newUser);
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString();
   };
@@ -225,6 +284,12 @@ export default function UserManagement() {
         <TopHeader 
           title="User Management"
           description="Manage user roles, permissions, and division access."
+          actions={
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <UserPlus className="w-4 h-4 mr-2" />
+              Add User
+            </Button>
+          }
         />
         
         <main className="flex-1 overflow-y-auto p-6">
@@ -391,6 +456,7 @@ export default function UserManagement() {
                                       <SelectContent>
                                         <SelectItem value="user">User - View only access</SelectItem>
                                         <SelectItem value="uploader">Uploader - Can upload and view</SelectItem>
+                                        <SelectItem value="exco">Executive - Company-wide view</SelectItem>
                                         <SelectItem value="admin">Admin - Full access</SelectItem>
                                       </SelectContent>
                                     </Select>
@@ -469,6 +535,126 @@ export default function UserManagement() {
           </Card>
         </main>
       </div>
+
+      {/* Create User Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+            <DialogDescription>
+              Add a new user to the system. A temporary password will be generated.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">First Name *</label>
+                <input
+                  type="text"
+                  className="w-full mt-1 px-3 py-2 border rounded-md"
+                  value={newUser.firstName}
+                  onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
+                  placeholder="Enter first name"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Last Name *</label>
+                <input
+                  type="text"
+                  className="w-full mt-1 px-3 py-2 border rounded-md"
+                  value={newUser.lastName}
+                  onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
+                  placeholder="Enter last name"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Email Address *</label>
+              <input
+                type="email"
+                className="w-full mt-1 px-3 py-2 border rounded-md"
+                value={newUser.email}
+                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                placeholder="user@example.com"
+              />
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Role</label>
+              <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="user">User - View only access</SelectItem>
+                  <SelectItem value="uploader">Uploader - Can upload and view</SelectItem>
+                  <SelectItem value="exco">Executive - Company-wide view</SelectItem>
+                  <SelectItem value="admin">Admin - Full access</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Divisions (Optional)</label>
+              <Select onValueChange={(value) => {
+                const divisionId = parseInt(value);
+                if (!newUser.divisionIds.includes(divisionId)) {
+                  setNewUser({
+                    ...newUser, 
+                    divisionIds: [...newUser.divisionIds, divisionId]
+                  });
+                }
+              }}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select divisions..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {divisions?.map((division: any) => (
+                    <SelectItem key={division.id} value={division.id.toString()}>
+                      {division.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {newUser.divisionIds.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {newUser.divisionIds.map((divId) => {
+                    const division = divisions?.find((d: any) => d.id === divId);
+                    return (
+                      <Badge key={divId} variant="secondary" className="text-xs">
+                        {division?.name}
+                        <button
+                          onClick={() => setNewUser({
+                            ...newUser,
+                            divisionIds: newUser.divisionIds.filter(id => id !== divId)
+                          })}
+                          className="ml-1 hover:text-destructive"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateUser}
+              disabled={createUserMutation.isPending}
+            >
+              {createUserMutation.isPending ? "Creating..." : "Create User"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -143,13 +143,15 @@ export default function Dashboard() {
             title="Dashboard"
             description="Company-wide overview across all divisions"
             actions={
-              canAccessCompanyView ? (
-                <DivisionSelector
-                  value={selectedView}
-                  onValueChange={setSelectedView}
-                  showAllOption={true}
-                />
-              ) : undefined
+              <div className="flex items-center space-x-3">
+                {canAccessCompanyView && (
+                  <DivisionSelector
+                    value={selectedView}
+                    onValueChange={setSelectedView}
+                    showAllOption={true}
+                  />
+                )}
+              </div>
             }
           />
           
@@ -170,13 +172,15 @@ export default function Dashboard() {
           title="Dashboard"
           description="Welcome back! Here's your data overview."
           actions={
-            canAccessCompanyView ? (
-              <DivisionSelector
-                value={selectedView}
-                onValueChange={setSelectedView}
-                showAllOption={true}
-              />
-            ) : undefined
+            <div className="flex items-center space-x-3">
+              {canAccessCompanyView && (
+                <DivisionSelector
+                  value={selectedView}
+                  onValueChange={setSelectedView}
+                  showAllOption={true}
+                />
+              )}
+            </div>
           }
         />
         
