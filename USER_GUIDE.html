@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tally by JBLabs - User Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        }
+        h1 {
+            color: #1976D2;
+            border-bottom: 3px solid #1976D2;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #424242;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+        h3 {
+            color: #1976D2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h4 {
+            color: #666;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        .role-section {
+            background: #f8f9fa;
+            border-left: 4px solid #1976D2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .admin-section {
+            border-left-color: #d32f2f;
+        }
+        .uploader-section {
+            border-left-color: #f57c00;
+        }
+        .user-section {
+            border-left-color: #388e3c;
+        }
+        .steps {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        ol, ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .purpose {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            font-style: italic;
+        }
+        .warning {
+            background: #fff3e0;
+            border: 1px solid #ffcc02;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        @media print {
+            body {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+            .role-section {
+                break-inside: avoid;
+            }
+            .steps {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Tally by JBLabs - User Guide</h1>
+
+    <h2>Getting Started</h2>
+    
+    <div class="steps">
+        <h3>Initial Setup</h3>
+        <ol>
+            <li><strong>Access the Application</strong>
+                <ul>
+                    <li>Navigate to your Tally application URL</li>
+                    <li>You'll see the landing page with video background</li>
+                </ul>
+            </li>
+            <li><strong>Create Your Account</strong>
+                <ul>
+                    <li>Click "Create Account" on the landing page</li>
+                    <li>Fill in your details (email, password, first name, last name)</li>
+                    <li>Click "Register" to create your account</li>
+                </ul>
+            </li>
+            <li><strong>First Login</strong>
+                <ul>
+                    <li>Click "Sign In" on the landing page</li>
+                    <li>Enter your email and password</li>
+                    <li>Click "Login" to access the dashboard</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="role-section admin-section">
+        <h2>Admin Account Instructions</h2>
+        <p><strong>Admins have full access to all features and can manage the entire system.</strong></p>
+
+        <h3>1. User Management</h3>
+        <div class="purpose"><strong>Purpose:</strong> Create and manage user accounts, assign roles and divisions</div>
+        <div class="steps">
+            <ol>
+                <li>Click "User Management" in the sidebar under Administration</li>
+                <li><strong>To create a new user:</strong>
+                    <ul>
+                        <li>Click "Add User" button</li>
+                        <li>Fill in user details (email, password, first name, last name)</li>
+                        <li>Select role: Admin, Uploader, or User</li>
+                        <li>Click "Create User"</li>
+                    </ul>
+                </li>
+                <li><strong>To edit user roles:</strong>
+                    <ul>
+                        <li>Find the user in the list</li>
+                        <li>Click the role dropdown next to their name</li>
+                        <li>Select new role (Admin/Uploader/User)</li>
+                        <li>Changes save automatically</li>
+                    </ul>
+                </li>
+                <li><strong>To assign users to divisions:</strong>
+                    <ul>
+                        <li>Click "Manage Divisions" next to a user</li>
+                        <li>Select divisions they should have access to</li>
+                        <li>Check "Can Manage" if they should manage that division</li>
+                        <li>Click "Save"</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>2. Division Management</h3>
+        <div class="purpose"><strong>Purpose:</strong> Create and manage organizational divisions with custom branding</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Divisions" in the sidebar under Administration</li>
+                <li><strong>To create a division:</strong>
+                    <ul>
+                        <li>Click "Create Division"</li>
+                        <li>Enter division name and description</li>
+                        <li>Upload logo (optional)</li>
+                        <li>Choose primary and secondary colors</li>
+                        <li>Click "Create"</li>
+                    </ul>
+                </li>
+                <li><strong>To edit a division:</strong>
+                    <ul>
+                        <li>Click "Edit" next to any division</li>
+                        <li>Update details as needed</li>
+                        <li>Click "Save Changes"</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>3. Branding Customization</h3>
+        <div class="purpose"><strong>Purpose:</strong> Set organization-wide branding and themes</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Branding" in the sidebar under Administration</li>
+                <li><strong>Organization Settings:</strong>
+                    <ul>
+                        <li>Enter your organization name</li>
+                        <li>Upload your logo</li>
+                        <li>Choose primary and secondary colors</li>
+                    </ul>
+                </li>
+                <li><strong>Theme Settings:</strong>
+                    <ul>
+                        <li>Select light/dark mode preference</li>
+                        <li>Customize button styles</li>
+                        <li>Preview changes in real-time</li>
+                    </ul>
+                </li>
+                <li>Click "Save Branding" to apply changes</li>
+            </ol>
+        </div>
+
+        <h3>4. Data Import & Management</h3>
+        <div class="purpose"><strong>Purpose:</strong> Upload and process contact data files</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Import Data" in the sidebar</li>
+                <li><strong>Upload Files:</strong>
+                    <ul>
+                        <li>Drag and drop Excel (.xlsx, .xls) or CSV files</li>
+                        <li>Or click "Choose Files" to browse</li>
+                        <li>Files must be under 10MB</li>
+                    </ul>
+                </li>
+                <li><strong>Field Mapping:</strong>
+                    <ul>
+                        <li>Go to "Field Mapping" in the sidebar</li>
+                        <li>Select your uploaded file</li>
+                        <li>Map Excel/CSV columns to database fields</li>
+                        <li>Click "Process" to import data</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>5. Audit Log Monitoring</h3>
+        <div class="purpose"><strong>Purpose:</strong> Track all system activities and changes</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Audit Log" in the sidebar under Administration</li>
+                <li><strong>Review Activities:</strong>
+                    <ul>
+                        <li>See all user actions with timestamps</li>
+                        <li>Filter by date range or user</li>
+                        <li>Monitor file uploads and data changes</li>
+                    </ul>
+                </li>
+                <li><strong>Export Logs:</strong>
+                    <ul>
+                        <li>Click "Export" to download audit reports</li>
+                        <li>Choose date range for export</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="role-section uploader-section">
+        <h2>Uploader Account Instructions</h2>
+        <p><strong>Uploaders can import data and manage contacts but cannot access administrative functions.</strong></p>
+
+        <h3>1. Accessing Your Dashboard</h3>
+        <div class="steps">
+            <ol>
+                <li>Login to see your dashboard</li>
+                <li>View contact statistics and recent uploads</li>
+                <li>Switch between divisions (if assigned to multiple)</li>
+            </ol>
+        </div>
+
+        <h3>2. Importing Contact Data</h3>
+        <div class="purpose"><strong>Purpose:</strong> Upload Excel or CSV files with contact information</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Import Data" in the sidebar</li>
+                <li><strong>Prepare Your File:</strong>
+                    <ul>
+                        <li>Ensure your Excel/CSV has clear column headers</li>
+                        <li>Common columns: First Name, Last Name, Email, Phone, Company, Position</li>
+                        <li>Remove any duplicate or test data</li>
+                    </ul>
+                </li>
+                <li><strong>Upload Process:</strong>
+                    <ul>
+                        <li>Drag and drop your file or click "Choose Files"</li>
+                        <li>File uploads automatically and shows in "Recent Uploads"</li>
+                        <li>Status shows as "Pending" until processed</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>3. Field Mapping</h3>
+        <div class="purpose"><strong>Purpose:</strong> Tell the system which columns contain which data</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Field Mapping" in the sidebar</li>
+                <li><strong>Select Your Upload:</strong>
+                    <ul>
+                        <li>Find your file in the "Pending Uploads" section</li>
+                        <li>Click "Map Fields" next to your file</li>
+                    </ul>
+                </li>
+                <li><strong>Map Columns:</strong>
+                    <ul>
+                        <li>Left side shows your Excel/CSV columns</li>
+                        <li>Right side shows database fields</li>
+                        <li>Match each column to the correct field</li>
+                        <li>Leave unmapped if column isn't needed</li>
+                    </ul>
+                </li>
+                <li><strong>Process Data:</strong>
+                    <ul>
+                        <li>Review your mappings</li>
+                        <li>Click "Process" to import contacts</li>
+                        <li>Status changes to "Processing" then "Completed"</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>4. Managing Contacts</h3>
+        <div class="purpose"><strong>Purpose:</strong> View and search through imported contacts</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Contacts" in the sidebar</li>
+                <li><strong>Search Contacts:</strong>
+                    <ul>
+                        <li>Use the search box to find specific contacts</li>
+                        <li>Search works across names, emails, and companies</li>
+                    </ul>
+                </li>
+                <li><strong>View Details:</strong>
+                    <ul>
+                        <li>Click on any contact to see full details</li>
+                        <li>See which upload/file they came from</li>
+                        <li>Note any categories assigned</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>5. Generating Reports</h3>
+        <div class="purpose"><strong>Purpose:</strong> Create reports on your contact data</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Reports" in the sidebar</li>
+                <li><strong>View Analytics:</strong>
+                    <ul>
+                        <li>See contact growth charts</li>
+                        <li>Review distribution by categories</li>
+                        <li>Check upload statistics</li>
+                    </ul>
+                </li>
+                <li><strong>Export Data:</strong>
+                    <ul>
+                        <li>Click "Export Report"</li>
+                        <li>Choose format: PDF, Excel, or CSV</li>
+                        <li>Reports include current division's data only</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="role-section user-section">
+        <h2>User Account Instructions</h2>
+        <p><strong>Users have read-only access to contacts and basic reporting features.</strong></p>
+
+        <h3>1. Viewing Your Dashboard</h3>
+        <div class="steps">
+            <ol>
+                <li>Login to access your dashboard</li>
+                <li><strong>Dashboard Overview:</strong>
+                    <ul>
+                        <li>See total contacts in your accessible divisions</li>
+                        <li>View recent activity summary</li>
+                        <li>Check contact distribution charts</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>2. Browsing Contacts</h3>
+        <div class="purpose"><strong>Purpose:</strong> Search and view contact information</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Contacts" in the sidebar</li>
+                <li><strong>Search Contacts:</strong>
+                    <ul>
+                        <li>Type in the search box to find contacts</li>
+                        <li>Search by name, email, or company</li>
+                        <li>Results update as you type</li>
+                    </ul>
+                </li>
+                <li><strong>View Contact Details:</strong>
+                    <ul>
+                        <li>Click on any contact name</li>
+                        <li>See all available information</li>
+                        <li>Note which category they belong to</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>3. Using Reports</h3>
+        <div class="purpose"><strong>Purpose:</strong> View analytics and trends</div>
+        <div class="steps">
+            <ol>
+                <li>Click "Reports" in the sidebar</li>
+                <li><strong>Available Reports:</strong>
+                    <ul>
+                        <li>Contact growth over time</li>
+                        <li>Distribution by categories</li>
+                        <li>Division-specific statistics</li>
+                    </ul>
+                </li>
+                <li><strong>Filtering Data:</strong>
+                    <ul>
+                        <li>Use date range selector</li>
+                        <li>Filter by contact categories</li>
+                        <li>Switch between different report types</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+
+        <h3>4. Division Access</h3>
+        <div class="purpose"><strong>Purpose:</strong> Switch between accessible divisions (if assigned to multiple)</div>
+        <div class="steps">
+            <ol>
+                <li><strong>Division Selector:</strong>
+                    <ul>
+                        <li>Located in the top header of each page</li>
+                        <li>Shows current division name</li>
+                        <li>Click dropdown to switch divisions</li>
+                    </ul>
+                </li>
+                <li><strong>What Changes:</strong>
+                    <ul>
+                        <li>All data (contacts, reports, statistics) updates</li>
+                        <li>Only shows data for selected division</li>
+                        <li>Branding may change based on division settings</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>General Features (All Users)</h2>
+
+    <div class="steps">
+        <h3>Theme Toggle</h3>
+        <ul>
+            <li><strong>Light/Dark Mode:</strong> Click the sun/moon icon in the top-right corner</li>
+            <li><strong>Automatic Saving:</strong> Your preference is remembered for future visits</li>
+        </ul>
+
+        <h3>Navigation</h3>
+        <ul>
+            <li><strong>Sidebar Menu:</strong> Access all available features based on your role</li>
+            <li><strong>Breadcrumbs:</strong> See your current location in the application</li>
+            <li><strong>Quick Actions:</strong> Use keyboard shortcuts where available</li>
+        </ul>
+
+        <h3>Profile Management</h3>
+        <ul>
+            <li><strong>View Profile:</strong> Your name and role appear in the sidebar</li>
+            <li><strong>Logout:</strong> Click your profile area and select logout</li>
+        </ul>
+
+        <h3>Getting Help</h3>
+        <ul>
+            <li><strong>Contact Support:</strong> Reach out to your administrator for additional help</li>
+            <li><strong>System Status:</strong> Check the audit log (admins) for any system issues</li>
+        </ul>
+    </div>
+
+    <h2>Troubleshooting</h2>
+
+    <div class="warning">
+        <h3>File Upload Issues</h3>
+        <ul>
+            <li><strong>File Too Large:</strong> Maximum file size is 10MB</li>
+            <li><strong>Unsupported Format:</strong> Only .xlsx, .xls, and .csv files accepted</li>
+            <li><strong>Processing Stuck:</strong> Contact your administrator</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <h3>Login Problems</h3>
+        <ul>
+            <li><strong>Forgot Password:</strong> Contact your administrator to reset</li>
+            <li><strong>Account Locked:</strong> Contact your administrator</li>
+            <li><strong>Access Denied:</strong> Your role may not have permission for that feature</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <h3>Data Questions</h3>
+        <ul>
+            <li><strong>Missing Contacts:</strong> Check if correct division is selected</li>
+            <li><strong>Wrong Data:</strong> Contact uploader who imported the file</li>
+            <li><strong>Export Issues:</strong> Try different export format or contact administrator</li>
+        </ul>
+    </div>
+
+    <div class="warning">
+        <h3>Browser Issues</h3>
+        <ul>
+            <li><strong>Clear Cache:</strong> Refresh the page or clear browser cache</li>
+            <li><strong>JavaScript Required:</strong> Ensure JavaScript is enabled</li>
+            <li><strong>Modern Browser:</strong> Use Chrome, Firefox, Safari, or Edge</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 50px; text-align: center; color: #666; font-size: 14px;">
+        <hr style="margin: 20px 0;">
+        <p><strong>Tally by JBLabs</strong> - Contact Management System</p>
+        <p>Generated: January 20, 2025</p>
+        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <p><strong>To save this as PDF:</strong></p>
+            <p>1. Open this HTML file in your browser</p>
+            <p>2. Press Ctrl+P (or Cmd+P on Mac)</p>
+            <p>3. Select "Save as PDF" as destination</p>
+            <p>4. Choose appropriate settings and save</p>
+        </div>
+    </div>
+</body>
+</html>
