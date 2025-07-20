@@ -9,7 +9,10 @@ import {
   insertBrandingSettingsSchema,
   insertContactCategorySchema,
   insertUploadSchema,
-  insertContactSchema
+  insertContactSchema,
+  insertCustomFieldDefinitionSchema,
+  createUserSchema,
+  updateUserSchema
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -46,6 +49,11 @@ function hasRole(user: any, requiredRole: string | string[]) {
     return requiredRole.includes(userRole);
   }
   return userRole === requiredRole;
+}
+
+// Helper function to check if user can access all divisions (admin/exco)
+function canAccessAllDivisions(user: any): boolean {
+  return hasRole(user, ['admin', 'exco']);
 }
 
 // Helper function to log audit actions
@@ -93,6 +101,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create new user (Admin only)
+  app.post("/api/users", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, 'admin')) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const validation = createUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Validation failed",
+          errors: validation.error.errors 
+        });
+      }
+
+      // Generate temporary password
+      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      
+      const newUser = await storage.createUser({
+        ...validation.data,
+        password: tempPassword, // Will be hashed in storage
+      });
+
+      // Assign divisions if provided
+      if (validation.data.divisionIds && validation.data.divisionIds.length > 0) {
+        await storage.assignUserToDivisions(newUser.id, validation.data.divisionIds);
+      }
+      
+      await logAudit(
+        req.user.id,
+        'user_created',
+        'user',
+        newUser.id,
+        null,
+        newUser,
+        undefined,
+        req
+      );
+      
+      res.status(201).json({ 
+        user: newUser, 
+        tempPassword 
+      });
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
   app.patch("/api/users/:id", isAuthenticated, async (req: any, res) => {
     try {
       if (!hasRole(req.user, 'admin')) {
@@ -100,10 +157,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { id } = req.params;
-      const updates = req.body;
+      const validation = updateUserSchema.safeParse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Validation failed",
+          errors: validation.error.errors 
+        });
+      }
       
       const oldUser = await storage.getUser(id);
-      const updatedUser = await storage.updateUser(id, updates);
+      const { divisionIds, ...userUpdates } = validation.data;
+      
+      const updatedUser = await storage.updateUser(id, userUpdates);
+      
+      // Update division assignments if provided
+      if (divisionIds !== undefined) {
+        await storage.updateUserDivisions(id, divisionIds);
+      }
       
       await logAudit(
         req.user.id,
@@ -120,6 +190,182 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user:", error);
       res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.delete("/api/users/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, 'admin')) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const { id } = req.params;
+      
+      if (id === req.user.id) {
+        return res.status(400).json({ message: "Cannot delete your own account" });
+      }
+      
+      const userToDelete = await storage.getUser(id);
+      await storage.deleteUser(id);
+      
+      await logAudit(
+        req.user.id,
+        'user_deleted',
+        'user',
+        id,
+        userToDelete,
+        null,
+        undefined,
+        req
+      );
+      
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+
+  // Get user divisions
+  app.get("/api/users/:id/divisions", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, 'admin')) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      const { id } = req.params;
+      const userDivisions = await storage.getUserDivisions(id);
+      res.json(userDivisions);
+    } catch (error) {
+      console.error("Error fetching user divisions:", error);
+      res.status(500).json({ message: "Failed to fetch user divisions" });
+    }
+  });
+
+  // Custom Field Management Routes (Admin and Uploader)
+  app.get("/api/custom-fields", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or uploader access required" });
+      }
+      
+      const { divisionId } = req.query;
+      const customFields = await storage.getCustomFieldDefinitions(
+        divisionId ? parseInt(divisionId as string) : undefined
+      );
+      res.json(customFields);
+    } catch (error) {
+      console.error("Error fetching custom fields:", error);
+      res.status(500).json({ message: "Failed to fetch custom fields" });
+    }
+  });
+
+  app.post("/api/custom-fields", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or uploader access required" });
+      }
+      
+      const validation = insertCustomFieldDefinitionSchema.safeParse({
+        ...req.body,
+        createdBy: req.user.id
+      });
+      
+      if (!validation.success) {
+        return res.status(400).json({ 
+          message: "Validation failed",
+          errors: validation.error.errors 
+        });
+      }
+
+      const customField = await storage.createCustomFieldDefinition(validation.data);
+      
+      await logAudit(
+        req.user.id,
+        'custom_field_created',
+        'custom_field',
+        customField.id.toString(),
+        null,
+        customField,
+        validation.data.divisionId,
+        req
+      );
+      
+      res.status(201).json(customField);
+    } catch (error) {
+      console.error("Error creating custom field:", error);
+      res.status(500).json({ message: "Failed to create custom field" });
+    }
+  });
+
+  app.patch("/api/custom-fields/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const oldField = await storage.getCustomFieldDefinition(parseInt(id));
+      const updatedField = await storage.updateCustomFieldDefinition(parseInt(id), req.body);
+      
+      await logAudit(
+        req.user.id,
+        'custom_field_updated',
+        'custom_field',
+        id,
+        oldField,
+        updatedField,
+        updatedField?.divisionId,
+        req
+      );
+      
+      res.json(updatedField);
+    } catch (error) {
+      console.error("Error updating custom field:", error);
+      res.status(500).json({ message: "Failed to update custom field" });
+    }
+  });
+
+  app.delete("/api/custom-fields/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const fieldToDelete = await storage.getCustomFieldDefinition(parseInt(id));
+      await storage.deleteCustomFieldDefinition(parseInt(id));
+      
+      await logAudit(
+        req.user.id,
+        'custom_field_deleted',
+        'custom_field',
+        id,
+        fieldToDelete,
+        null,
+        fieldToDelete?.divisionId,
+        req
+      );
+      
+      res.json({ message: "Custom field deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting custom field:", error);
+      res.status(500).json({ message: "Failed to delete custom field" });
+    }
+  });
+
+  // Company-wide statistics for exco role
+  app.get("/api/company-stats", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'exco'])) {
+        return res.status(403).json({ message: "Admin or executive access required" });
+      }
+      
+      const companyStats = await storage.getCompanyStats();
+      res.json(companyStats);
+    } catch (error) {
+      console.error("Error fetching company stats:", error);
+      res.status(500).json({ message: "Failed to fetch company statistics" });
     }
   });
 

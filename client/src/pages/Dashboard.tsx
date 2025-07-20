@@ -3,12 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useBrand } from "@/contexts/BrandContext";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import Sidebar from "@/components/Sidebar";
 import TopHeader from "@/components/TopHeader";
 import StatsCard from "@/components/StatsCard";
 import ContactGrowthChart from "@/components/ContactGrowthChart";
 import ContactTypesChart from "@/components/ContactTypesChart";
+import { DivisionSelector } from "@/components/DivisionSelector";
+import CompanyDashboard from "./CompanyDashboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +24,26 @@ import {
   UserCog,
   CloudUpload,
   FileSpreadsheet,
-  TrendingUp
+  Globe
 } from "lucide-react";
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { currentDivision } = useBrand();
   const { toast } = useToast();
+  const [selectedView, setSelectedView] = useState<number | "all">();
+
+  // Check if user can see company view (admin/exco)
+  const canAccessCompanyView = (user as any)?.role === 'admin' || (user as any)?.role === 'exco';
+
+  useEffect(() => {
+    // Set default view based on user role and current division
+    if (currentDivision?.id && !canAccessCompanyView) {
+      setSelectedView(currentDivision.id);
+    } else if (canAccessCompanyView) {
+      setSelectedView("all"); // Default to company view for admin/exco
+    }
+  }, [currentDivision, canAccessCompanyView]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -46,21 +60,22 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
+  // Division-specific queries (only when not showing company view)
   const { data: contactStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/contacts/stats", { divisionId: currentDivision?.id }],
-    enabled: !!user,
+    queryKey: ["/api/contacts/stats", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id }],
+    enabled: !!user && selectedView !== "all",
     retry: false,
   });
 
   const { data: recentUploads, isLoading: uploadsLoading } = useQuery({
-    queryKey: ["/api/uploads", { divisionId: currentDivision?.id, limit: 5 }],
-    enabled: !!user,
+    queryKey: ["/api/uploads", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id, limit: 5 }],
+    enabled: !!user && selectedView !== "all",
     retry: false,
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
-    queryKey: ["/api/contact-categories", { divisionId: currentDivision?.id }],
-    enabled: !!user,
+    queryKey: ["/api/contact-categories", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id }],
+    enabled: !!user && selectedView !== "all",
     retry: false,
   });
 
@@ -79,13 +94,13 @@ export default function Dashboard() {
     return null; // Will redirect in useEffect
   }
 
-  const isAdmin = user.role === 'admin';
-  const canUpload = user.role === 'admin' || user.role === 'uploader';
+  const isAdmin = (user as any).role === 'admin';
+  const canUpload = (user as any).role === 'admin' || (user as any).role === 'uploader';
 
   const statsData = contactStats ? [
     {
       label: "Total Contacts",
-      value: contactStats.total.toLocaleString(),
+      value: (contactStats as any).total.toLocaleString(),
       change: "+12.5%",
       icon: Users,
       color: "text-blue-600",
@@ -93,7 +108,7 @@ export default function Dashboard() {
     },
     {
       label: "Email Addresses",
-      value: contactStats.withEmail.toLocaleString(),
+      value: (contactStats as any).withEmail.toLocaleString(),
       change: "+8.2%",
       icon: Mail,
       color: "text-orange-600",
@@ -101,7 +116,7 @@ export default function Dashboard() {
     },
     {
       label: "Phone Numbers",
-      value: contactStats.withPhone.toLocaleString(),
+      value: (contactStats as any).withPhone.toLocaleString(),
       change: "-2.1%",
       icon: Phone,
       color: "text-green-600",
@@ -109,13 +124,43 @@ export default function Dashboard() {
     },
     {
       label: "Active Categories",
-      value: categories?.length.toString() || "0",
+      value: (categories as any)?.length.toString() || "0",
       change: "+3",
       icon: Tags,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
   ] : [];
+
+  // Show company dashboard for company view
+  if (selectedView === "all") {
+    return (
+      <div className="min-h-screen bg-background">
+        <TopHeader 
+          title="Dashboard"
+          description="Company-wide overview"
+        />
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 ml-64">
+            <div className="p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+                {canAccessCompanyView && (
+                  <DivisionSelector
+                    value={selectedView}
+                    onValueChange={setSelectedView}
+                    showAllOption={true}
+                  />
+                )}
+              </div>
+              <CompanyDashboard />
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -125,6 +170,15 @@ export default function Dashboard() {
         <TopHeader 
           title="Dashboard"
           description="Welcome back! Here's your data overview."
+          actions={
+            canAccessCompanyView ? (
+              <DivisionSelector
+                value={selectedView}
+                onValueChange={setSelectedView}
+                showAllOption={true}
+              />
+            ) : undefined
+          }
         />
         
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -151,7 +205,7 @@ export default function Dashboard() {
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ContactGrowthChart />
-            <ContactTypesChart categories={categories} />
+            <ContactTypesChart categories={categories as any} />
           </div>
 
           {/* Data Tables Row */}
@@ -179,8 +233,8 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))
-                ) : recentUploads?.length ? (
-                  recentUploads.map((upload) => (
+                ) : (recentUploads as any)?.length ? (
+                  (recentUploads as any).map((upload: any) => (
                     <div key={upload.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -239,11 +293,11 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))
-                ) : categories?.length ? (
-                  categories.slice(0, 5).map((category) => {
-                    const categoryStats = contactStats?.byCategory.find(c => c.categoryId === category.id);
+                ) : (categories as any)?.length ? (
+                  (categories as any).slice(0, 5).map((category: any) => {
+                    const categoryStats = (contactStats as any)?.byCategory.find((c: any) => c.categoryId === category.id);
                     const count = categoryStats?.count || 0;
-                    const total = contactStats?.total || 1;
+                    const total = (contactStats as any)?.total || 1;
                     const percentage = Math.round((count / total) * 100);
                     
                     return (

@@ -4,6 +4,7 @@ import {
   userDivisions,
   brandingSettings,
   contactCategories,
+  customFieldDefinitions,
   uploads,
   contacts,
   auditLogs,
@@ -17,25 +18,31 @@ import {
   type InsertBrandingSettings,
   type ContactCategory,
   type InsertContactCategory,
+  type CustomFieldDefinition,
+  type InsertCustomFieldDefinition,
   type Upload,
   type InsertUpload,
   type Contact,
   type InsertContact,
   type AuditLog,
   type InsertAuditLog,
+  type CreateUserData,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, count, like, ilike, inArray, or, isNotNull, ne } from "drizzle-orm";
+import { eq, and, desc, count, like, ilike, inArray, or, isNotNull, ne, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations for internal authentication
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  createUser(user: UpsertUser): Promise<User>;
+  createUser(user: CreateUserData & { password: string }): Promise<User>;
   updateUser(id: string, updates: Partial<User>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
   
   // User management
   getAllUsers(): Promise<User[]>;
+  assignUserToDivisions(userId: string, divisionIds: number[]): Promise<void>;
+  updateUserDivisions(userId: string, divisionIds: number[]): Promise<void>;
   
   // Division operations
   getAllDivisions(): Promise<Division[]>;
@@ -57,6 +64,13 @@ export interface IStorage {
   createContactCategory(category: InsertContactCategory): Promise<ContactCategory>;
   updateContactCategory(id: number, updates: Partial<ContactCategory>): Promise<ContactCategory>;
   
+  // Custom field definitions
+  getCustomFieldDefinitions(divisionId?: number): Promise<CustomFieldDefinition[]>;
+  getCustomFieldDefinition(id: number): Promise<CustomFieldDefinition | undefined>;
+  createCustomFieldDefinition(field: InsertCustomFieldDefinition): Promise<CustomFieldDefinition>;
+  updateCustomFieldDefinition(id: number, updates: Partial<CustomFieldDefinition>): Promise<CustomFieldDefinition>;
+  deleteCustomFieldDefinition(id: number): Promise<void>;
+  
   // Upload operations
   createUpload(upload: InsertUpload): Promise<Upload>;
   getUpload(id: number): Promise<Upload | undefined>;
@@ -73,6 +87,21 @@ export interface IStorage {
     withEmail: number;
     withPhone: number;
     byCategory: { categoryId: number; categoryName: string; count: number }[];
+  }>;
+  
+  // Company-wide statistics for exco role
+  getCompanyStats(): Promise<{
+    totalContacts: number;
+    totalDivisions: number;
+    totalActiveUsers: number;
+    totalUploads: number;
+    divisionStats: {
+      divisionId: number;
+      divisionName: string;
+      contactCount: number;
+      activeUsers: number;
+      recentUploads: number;
+    }[];
   }>;
   
   // Audit logging
@@ -92,9 +121,24 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(userData).returning();
+  async createUser(userData: CreateUserData & { password: string }): Promise<User> {
+    const { password, ...userInfo } = userData;
+    const hashedPassword = await this.hashPassword(password);
+    
+    const [user] = await db.insert(users).values({
+      ...userInfo,
+      password: hashedPassword,
+    }).returning();
     return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    const bcrypt = await import('bcryptjs');
+    return await bcrypt.hash(password, 12);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -124,6 +168,24 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id))
       .returning();
     return user;
+  }
+
+  async assignUserToDivisions(userId: string, divisionIds: number[]): Promise<void> {
+    // Remove existing assignments
+    await db.delete(userDivisions).where(eq(userDivisions.userId, userId));
+    
+    // Add new assignments
+    if (divisionIds.length > 0) {
+      const assignments = divisionIds.map(divisionId => ({
+        userId,
+        divisionId,
+      }));
+      await db.insert(userDivisions).values(assignments);
+    }
+  }
+
+  async updateUserDivisions(userId: string, divisionIds: number[]): Promise<void> {
+    await this.assignUserToDivisions(userId, divisionIds);
   }
 
   // Division operations
@@ -381,6 +443,58 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
+  // Custom field definitions
+  async getCustomFieldDefinitions(divisionId?: number): Promise<CustomFieldDefinition[]> {
+    const whereConditions = [eq(customFieldDefinitions.isActive, true)];
+    
+    if (divisionId) {
+      whereConditions.push(
+        or(
+          eq(customFieldDefinitions.divisionId, divisionId),
+          eq(customFieldDefinitions.isGlobal, true)
+        )
+      );
+    }
+    
+    return await db
+      .select()
+      .from(customFieldDefinitions)
+      .where(and(...whereConditions))
+      .orderBy(customFieldDefinitions.displayOrder, customFieldDefinitions.name);
+  }
+
+  async getCustomFieldDefinition(id: number): Promise<CustomFieldDefinition | undefined> {
+    const [field] = await db
+      .select()
+      .from(customFieldDefinitions)
+      .where(eq(customFieldDefinitions.id, id));
+    return field;
+  }
+
+  async createCustomFieldDefinition(field: InsertCustomFieldDefinition): Promise<CustomFieldDefinition> {
+    const [customField] = await db
+      .insert(customFieldDefinitions)
+      .values(field)
+      .returning();
+    return customField;
+  }
+
+  async updateCustomFieldDefinition(id: number, updates: Partial<CustomFieldDefinition>): Promise<CustomFieldDefinition> {
+    const [customField] = await db
+      .update(customFieldDefinitions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(customFieldDefinitions.id, id))
+      .returning();
+    return customField;
+  }
+
+  async deleteCustomFieldDefinition(id: number): Promise<void> {
+    await db
+      .update(customFieldDefinitions)
+      .set({ isActive: false })
+      .where(eq(customFieldDefinitions.id, id));
+  }
+
   // Audit logging
   async createAuditLog(log: InsertAuditLog): Promise<AuditLog> {
     const [auditLog] = await db.insert(auditLogs).values(log).returning();
@@ -400,6 +514,105 @@ export class DatabaseStorage implements IStorage {
       .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
       .orderBy(desc(auditLogs.createdAt))
       .limit(limit);
+  }
+
+  // Company-wide statistics for exco role
+  async getCompanyStats(): Promise<{
+    totalContacts: number;
+    totalDivisions: number;
+    totalActiveUsers: number;
+    totalUploads: number;
+    divisionStats: {
+      divisionId: number;
+      divisionName: string;
+      contactCount: number;
+      activeUsers: number;
+      recentUploads: number;
+    }[];
+  }> {
+    // Get total counts
+    const [contactsResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(eq(contacts.isActive, true));
+
+    const [divisionsResult] = await db
+      .select({ count: count() })
+      .from(divisions)
+      .where(eq(divisions.isActive, true));
+
+    const [usersResult] = await db
+      .select({ count: count() })
+      .from(users)
+      .where(eq(users.isActive, true));
+
+    const [uploadsResult] = await db
+      .select({ count: count() })
+      .from(uploads);
+
+    // Get division stats
+    const divisionStats = await db
+      .select({
+        divisionId: divisions.id,
+        divisionName: divisions.name,
+        contactCount: count(contacts.id),
+      })
+      .from(divisions)
+      .leftJoin(contacts, and(
+        eq(contacts.divisionId, divisions.id),
+        eq(contacts.isActive, true)
+      ))
+      .where(eq(divisions.isActive, true))
+      .groupBy(divisions.id, divisions.name);
+
+    // Get active users per division
+    const userStats = await db
+      .select({
+        divisionId: userDivisions.divisionId,
+        activeUsers: count(users.id),
+      })
+      .from(userDivisions)
+      .leftJoin(users, and(
+        eq(users.id, userDivisions.userId),
+        eq(users.isActive, true)
+      ))
+      .groupBy(userDivisions.divisionId);
+
+    // Get recent uploads per division
+    const uploadStats = await db
+      .select({
+        divisionId: uploads.divisionId,
+        recentUploads: count(uploads.id),
+      })
+      .from(uploads)
+      .where(and(
+        eq(uploads.status, 'completed'),
+        // Last 30 days
+        sql`${uploads.createdAt} > NOW() - INTERVAL '30 days'`
+      ))
+      .groupBy(uploads.divisionId);
+
+    // Combine stats
+    const combinedStats = divisionStats.map(division => {
+      const userStat = userStats.find(u => u.divisionId === division.divisionId);
+      const uploadStat = uploadStats.find(u => u.divisionId === division.divisionId);
+      
+      return {
+        divisionId: division.divisionId,
+        divisionName: division.divisionName,
+        contactCount: division.contactCount,
+        activeUsers: userStat?.activeUsers || 0,
+        recentUploads: uploadStat?.recentUploads || 0,
+      };
+    });
+
+    return {
+      totalContacts: contactsResult.count,
+      totalDivisions: divisionsResult.count,
+      totalActiveUsers: usersResult.count,
+      totalUploads: uploadsResult.count,
+      divisionStats: combinedStats,
+    };
   }
 }
 

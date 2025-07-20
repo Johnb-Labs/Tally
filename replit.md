@@ -21,6 +21,12 @@ Preferred communication style: Simple, everyday language.
 - ✓ Comprehensive dark mode functionality implemented across all pages
 - ✓ Enhanced Landing page with video background and improved branding layout
 - ✓ Fixed authentication API calls in Login/Register forms
+- ✓ Added "exco" (executive) role with company-wide dashboard access
+- ✓ Implemented dynamic field management for admin/uploader users
+- ✓ Removed public registration - admin-only user creation system
+- ✓ Added DivisionSelector component with company/division view toggle
+- ✓ Created CompanyDashboard with comprehensive company-wide statistics
+- ✓ Updated user management with division assignments and role-based permissions
 
 
 ## System Architecture

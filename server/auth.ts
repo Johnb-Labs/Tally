@@ -5,9 +5,7 @@ import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 import { 
   loginSchema, 
-  registerSchema, 
   type LoginData, 
-  type RegisterData,
   type User 
 } from "@shared/schema";
 import { z } from "zod";
@@ -69,34 +67,7 @@ export async function authenticateUser(email: string, password: string): Promise
   }
 }
 
-export async function registerUser(userData: RegisterData): Promise<User | null> {
-  try {
-    // Check if user already exists
-    const existingUser = await storage.getUserByEmail(userData.email);
-    if (existingUser) {
-      throw new Error("User already exists with this email");
-    }
-
-    // Hash password
-    const hashedPassword = await hashPassword(userData.password);
-
-    // Create user
-    const user = await storage.createUser({
-      email: userData.email,
-      password: hashedPassword,
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      role: "user", // Default role
-      isActive: true,
-      emailVerified: false,
-    });
-
-    return user;
-  } catch (error) {
-    console.error("Registration error:", error);
-    return null;
-  }
-}
+// Registration is now handled by admin users only - this function is disabled
 
 // Authentication middleware
 export const isAuthenticated: RequestHandler = (req: any, res, next) => {
@@ -160,26 +131,9 @@ export async function setupAuth(app: Express) {
     }
   });
 
-  // Register route
+  // Register route - disabled for public registration
   app.post("/api/auth/register", async (req, res) => {
-    try {
-      const registerData = registerSchema.parse(req.body);
-      const user = await registerUser(registerData);
-      
-      if (!user) {
-        return res.status(400).json({ message: "Registration failed" });
-      }
-
-      // Return user without password
-      const { password, ...userWithoutPassword } = user;
-      res.status(201).json({ user: userWithoutPassword });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid input", errors: error.errors });
-      }
-      console.error("Registration error:", error);
-      res.status(500).json({ message: error.message || "Internal server error" });
-    }
+    res.status(403).json({ message: "Public registration is disabled. Contact your administrator." });
   });
 
   // Logout route

@@ -27,7 +27,7 @@ export const sessions = pgTable(
 );
 
 // User roles enum
-export const userRoleEnum = pgEnum("user_role", ["admin", "uploader", "user"]);
+export const userRoleEnum = pgEnum("user_role", ["admin", "uploader", "user", "exco"]);
 
 // Users table for internal authentication
 export const users = pgTable("users", {
@@ -91,6 +91,27 @@ export const contactCategories = pgTable("contact_categories", {
   divisionId: integer("division_id").references(() => divisions.id),
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Custom field definitions for dynamic form fields
+export const customFieldDefinitions = pgTable("custom_field_definitions", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  label: varchar("label", { length: 255 }).notNull(),
+  fieldType: varchar("field_type", { length: 50 }).notNull(), // text, email, phone, number, date, select, checkbox
+  isRequired: boolean("is_required").default(false),
+  defaultValue: text("default_value"),
+  placeholder: varchar("placeholder", { length: 255 }),
+  helpText: text("help_text"),
+  validationRules: jsonb("validation_rules"), // min/max length, pattern, etc.
+  selectOptions: jsonb("select_options"), // for select/radio fields
+  displayOrder: integer("display_order").default(0),
+  divisionId: integer("division_id").references(() => divisions.id),
+  isGlobal: boolean("is_global").default(false), // if true, applies to all divisions
+  isActive: boolean("is_active").default(true),
+  createdBy: uuid("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Upload status enum
@@ -160,11 +181,13 @@ export const usersRelations = relations(users, ({ many }) => ({
   userDivisions: many(userDivisions),
   uploads: many(uploads),
   auditLogs: many(auditLogs),
+  customFieldDefinitions: many(customFieldDefinitions),
 }));
 
 export const divisionsRelations = relations(divisions, ({ many }) => ({
   userDivisions: many(userDivisions),
   contactCategories: many(contactCategories),
+  customFieldDefinitions: many(customFieldDefinitions),
   uploads: many(uploads),
   contacts: many(contacts),
   auditLogs: many(auditLogs),
@@ -187,6 +210,17 @@ export const contactCategoriesRelations = relations(contactCategories, ({ one, m
     references: [divisions.id],
   }),
   contacts: many(contacts),
+}));
+
+export const customFieldDefinitionsRelations = relations(customFieldDefinitions, ({ one }) => ({
+  division: one(divisions, {
+    fields: [customFieldDefinitions.divisionId],
+    references: [divisions.id],
+  }),
+  createdByUser: one(users, {
+    fields: [customFieldDefinitions.createdBy],
+    references: [users.id],
+  }),
 }));
 
 export const uploadsRelations = relations(uploads, ({ one, many }) => ({
@@ -254,6 +288,12 @@ export const insertContactCategorySchema = createInsertSchema(contactCategories)
   createdAt: true,
 });
 
+export const insertCustomFieldDefinitionSchema = createInsertSchema(customFieldDefinitions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertUploadSchema = createInsertSchema(uploads).omit({
   id: true,
   createdAt: true,
@@ -277,11 +317,22 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const registerSchema = z.object({
+// Admin creates users - no password required initially, temporary password will be generated
+export const createUserSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  role: z.enum(["admin", "uploader", "user", "exco"]),
+  divisionIds: z.array(z.number()).optional(),
+});
+
+export const updateUserSchema = z.object({
+  email: z.string().email("Invalid email address").optional(),
+  firstName: z.string().min(1, "First name is required").optional(),
+  lastName: z.string().min(1, "Last name is required").optional(),
+  role: z.enum(["admin", "uploader", "user", "exco"]).optional(),
+  isActive: z.boolean().optional(),
+  divisionIds: z.array(z.number()).optional(),
 });
 
 export const updateProfileSchema = z.object({
@@ -304,7 +355,7 @@ export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type LoginData = z.infer<typeof loginSchema>;
-export type RegisterData = z.infer<typeof registerSchema>;
+// RegisterData removed - public registration disabled
 export type UpdateProfileData = z.infer<typeof updateProfileSchema>;
 export type ChangePasswordData = z.infer<typeof changePasswordSchema>;
 export type Division = typeof divisions.$inferSelect;
@@ -315,6 +366,10 @@ export type BrandingSettings = typeof brandingSettings.$inferSelect;
 export type InsertBrandingSettings = z.infer<typeof insertBrandingSettingsSchema>;
 export type ContactCategory = typeof contactCategories.$inferSelect;
 export type InsertContactCategory = z.infer<typeof insertContactCategorySchema>;
+export type CustomFieldDefinition = typeof customFieldDefinitions.$inferSelect;
+export type InsertCustomFieldDefinition = z.infer<typeof insertCustomFieldDefinitionSchema>;
+export type CreateUserData = z.infer<typeof createUserSchema>;
+export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type Upload = typeof uploads.$inferSelect;
 export type InsertUpload = z.infer<typeof insertUploadSchema>;
 export type Contact = typeof contacts.$inferSelect;

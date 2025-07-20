@@ -21,11 +21,11 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
   const { user } = useAuth();
   const { currentDivision, setCurrentDivision } = useBrand();
 
-  const userDivisions = user?.divisions || [];
+  const userDivisions = (user as any)?.divisions || [];
   const showDivisionSelector = userDivisions.length > 1;
 
   const handleDivisionChange = (divisionId: string) => {
-    const division = userDivisions.find(d => d.id === parseInt(divisionId));
+    const division = userDivisions.find((d: any) => d.id === parseInt(divisionId));
     setCurrentDivision(division || null);
   };
 
@@ -58,7 +58,7 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
                 <SelectValue placeholder="Select Division" />
               </SelectTrigger>
               <SelectContent>
-                {userDivisions.map((division) => (
+                {userDivisions.map((division: any) => (
                   <SelectItem key={division.id} value={division.id.toString()}>
                     {division.name}
                   </SelectItem>
