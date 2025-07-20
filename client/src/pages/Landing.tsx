@@ -44,34 +44,41 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header with Theme Toggle */}
-      <div className="absolute top-4 right-4 z-10">
+      <div className="absolute top-4 right-4 z-20">
         <ThemeToggle />
       </div>
       
-      {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5">
-        <div className="container mx-auto px-4 py-16 sm:py-24">
+      {/* Hero Section with Video Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+        {/* Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <video 
+            autoPlay 
+            muted 
+            loop 
+            playsInline
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Hide video if it fails to load, showing gradient background
+              e.currentTarget.style.display = 'none';
+            }}
+          >
+            <source src="https://cdn.pixabay.com/vimeo/492333430/abstract-49233.mp4?width=1280&hash=4c70a97e7a2cf5ae00f2b3d14b5e4de87c5d6e23" type="video/mp4" />
+          </video>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/30"></div>
+        </div>
+        
+        <div className="relative z-10 container mx-auto px-4 py-16 sm:py-24">
           <div className="text-center">
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              {getEffectiveLogo() ? (
-                <img
-                  src={getEffectiveLogo()!}
-                  alt={getEffectiveOrganizationName()}
-                  className="h-16 w-auto object-contain"
-                />
-              ) : (
-                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center">
-                  <Database className="w-8 h-8 text-primary-foreground" />
-                </div>
-              )}
-            </div>
-
             {/* Hero Content */}
-            <h1 className="text-4xl sm:text-6xl font-bold text-foreground mb-6">
-              {getEffectiveOrganizationName()}
+            <h1 className="text-4xl sm:text-6xl font-bold text-white mb-2">
+              Tally
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-white/80 mb-8">
+              by JBLabs
+            </p>
+            <p className="text-xl text-white/90 mb-8 max-w-3xl mx-auto">
               A fully white-labelable, secure contact management system with custom branding 
               and division-specific themes. Import, manage, and analyze your contact data with ease.
             </p>
@@ -80,7 +87,7 @@ export default function Landing() {
               <Link href="/login">
                 <Button 
                   size="lg" 
-                  className="px-8 py-3 text-lg"
+                  className="px-8 py-3 text-lg bg-white text-black hover:bg-white/90"
                 >
                   Sign In
                 </Button>
@@ -89,7 +96,7 @@ export default function Landing() {
                 <Button 
                   variant="outline" 
                   size="lg" 
-                  className="px-8 py-3 text-lg"
+                  className="px-8 py-3 text-lg border-white text-white hover:bg-white hover:text-black"
                 >
                   Create Account
                 </Button>
