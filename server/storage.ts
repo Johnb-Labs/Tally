@@ -394,6 +394,9 @@ export class DatabaseStorage implements IStorage {
     total: number;
     withEmail: number;
     withPhone: number;
+    withAddress: number;
+    withCompany: number;
+    withCustomFields: number;
     byCategory: { categoryId: number; categoryName: string; count: number }[];
   }> {
     const baseCondition = and(
@@ -419,6 +422,24 @@ export class DatabaseStorage implements IStorage {
       .from(contacts)
       .where(and(baseCondition, isNotNull(contacts.phone), ne(contacts.phone, "")));
 
+    // Contacts with address
+    const [addressResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(baseCondition, isNotNull(contacts.address), ne(contacts.address, "")));
+
+    // Contacts with company
+    const [companyResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(baseCondition, isNotNull(contacts.company), ne(contacts.company, "")));
+
+    // Contacts with custom fields
+    const [customFieldsResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(baseCondition, isNotNull(contacts.customFields)));
+
     // By category
     const categoryStats = await db
       .select({
@@ -435,6 +456,9 @@ export class DatabaseStorage implements IStorage {
       total: totalResult.count,
       withEmail: emailResult.count,
       withPhone: phoneResult.count,
+      withAddress: addressResult.count,
+      withCompany: companyResult.count,
+      withCustomFields: customFieldsResult.count,
       byCategory: categoryStats.map(stat => ({
         categoryId: stat.categoryId || 0,
         categoryName: stat.categoryName || "Uncategorized",

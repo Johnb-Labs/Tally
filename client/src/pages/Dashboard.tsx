@@ -25,7 +25,8 @@ import {
   CloudUpload,
   FileSpreadsheet,
   Globe,
-  Download
+  Download,
+  Building2
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -110,7 +111,7 @@ export default function Dashboard() {
     {
       label: "Email Addresses",
       value: (contactStats as any).withEmail.toLocaleString(),
-      change: "+8.2%",
+      change: `${Math.round(((contactStats as any).withEmail / (contactStats as any).total) * 100)}%`,
       icon: Mail,
       color: "text-orange-600",
       bgColor: "bg-orange-100",
@@ -118,20 +119,52 @@ export default function Dashboard() {
     {
       label: "Phone Numbers",
       value: (contactStats as any).withPhone.toLocaleString(),
-      change: "-2.1%",
+      change: `${Math.round(((contactStats as any).withPhone / (contactStats as any).total) * 100)}%`,
       icon: Phone,
       color: "text-green-600",
       bgColor: "bg-green-100",
     },
     {
-      label: "Active Categories",
-      value: (categories as any)?.length.toString() || "0",
-      change: "+3",
-      icon: Tags,
+      label: "Physical Addresses",
+      value: ((contactStats as any).withAddress || 0).toLocaleString(),
+      change: `${Math.round((((contactStats as any).withAddress || 0) / (contactStats as any).total) * 100)}%`,
+      icon: Globe,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
   ] : [];
+
+  // Function to download comprehensive division report
+  const handleDownloadReport = () => {
+    if (!contactStats || !currentDivision) return;
+    
+    const stats = contactStats as any;
+    const reportData = [
+      ['Division Dashboard Report'],
+      ['Division:', currentDivision.name],
+      ['Generated:', new Date().toLocaleDateString()],
+      [''],
+      ['Contact Information Summary'],
+      ['Total Contacts:', stats.total.toLocaleString()],
+      ['Email Addresses:', `${stats.withEmail.toLocaleString()} (${Math.round((stats.withEmail / stats.total) * 100)}%)`],
+      ['Phone Numbers:', `${stats.withPhone.toLocaleString()} (${Math.round((stats.withPhone / stats.total) * 100)}%)`],
+      ['Physical Addresses:', `${(stats.withAddress || 0).toLocaleString()} (${Math.round(((stats.withAddress || 0) / stats.total) * 100)}%)`],
+      ['Company Information:', `${(stats.withCompany || 0).toLocaleString()} (${Math.round(((stats.withCompany || 0) / stats.total) * 100)}%)`],
+      ['Custom Fields:', `${(stats.withCustomFields || 0).toLocaleString()} (${Math.round(((stats.withCustomFields || 0) / stats.total) * 100)}%)`],
+      [''],
+      ['Category Breakdown'],
+      ...stats.byCategory.map((cat: any) => [cat.categoryName, cat.count.toLocaleString()])
+    ];
+
+    const csv = reportData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `division-${currentDivision.name}-report-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   // Show company dashboard for company view
   if (selectedView === "all") {
@@ -185,7 +218,7 @@ export default function Dashboard() {
                   showAllOption={true}
                 />
               )}
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleDownloadReport}>
                 <Download className="w-4 h-4 mr-2" />
                 Export Report
               </Button>
@@ -212,6 +245,98 @@ export default function Dashboard() {
                 <StatsCard key={index} {...stat} />
               ))
             )}
+          </div>
+
+          {/* Enhanced Contact Information Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Contact Information Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Information Breakdown</CardTitle>
+                <CardDescription>Detailed contact data availability across all fields</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {contactStats && (
+                  <>
+                    <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Mail className="w-5 h-5 text-orange-600" />
+                        <span className="font-medium">Email Addresses</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">{(contactStats as any).withEmail.toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({Math.round(((contactStats as any).withEmail / (contactStats as any).total) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Phone className="w-5 h-5 text-green-600" />
+                        <span className="font-medium">Phone Numbers</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">{(contactStats as any).withPhone.toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({Math.round(((contactStats as any).withPhone / (contactStats as any).total) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Globe className="w-5 h-5 text-purple-600" />
+                        <span className="font-medium">Physical Addresses</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">{((contactStats as any).withAddress || 0).toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({Math.round((((contactStats as any).withAddress || 0) / (contactStats as any).total) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Building2 className="w-5 h-5 text-indigo-600" />
+                        <span className="font-medium">Company Information</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">{((contactStats as any).withCompany || 0).toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({Math.round((((contactStats as any).withCompany || 0) / (contactStats as any).total) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Tags className="w-5 h-5 text-blue-600" />
+                        <span className="font-medium">Custom Fields</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold">{((contactStats as any).withCustomFields || 0).toLocaleString()}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          ({Math.round((((contactStats as any).withCustomFields || 0) / (contactStats as any).total) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Contact Categories Distribution */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contact Categories</CardTitle>
+                <CardDescription>Distribution by category and recent activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ContactTypesChart categories={categories || []} />
+              </CardContent>
+            </Card>
           </div>
 
           {/* Charts Row */}
