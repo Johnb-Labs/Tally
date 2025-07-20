@@ -8,6 +8,16 @@ This is a full-stack contact management application built with a modern tech sta
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### Latest Updates (January 20, 2025)
+- ✓ Created comprehensive USER_GUIDE.md with step-by-step instructions
+- ✓ Added role-specific guides for Admin, Uploader, and User accounts
+- ✓ Included troubleshooting section and general features guide
+- ✓ Comprehensive dark mode functionality implemented across all pages
+- ✓ Enhanced Landing page with video background and improved branding layout
+- ✓ Fixed authentication API calls in Login/Register forms
+
 ## System Architecture
 
 ### Frontend Architecture
