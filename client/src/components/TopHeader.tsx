@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Download } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 interface TopHeaderProps {
   title: string;
@@ -44,6 +45,9 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
         </div>
         
         <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
+          
           {/* Division Selector */}
           {showDivisionSelector && (
             <Select
