@@ -66,7 +66,7 @@ export default function UserManagement() {
       return;
     }
     
-    if (user && user.role !== 'admin') {
+    if (user && (user as any).role !== 'admin') {
       toast({
         title: "Access Denied",
         description: "Only administrators can access user management.",
@@ -81,13 +81,13 @@ export default function UserManagement() {
 
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ["/api/users"],
-    enabled: !!user && user.role === 'admin',
+    enabled: !!user && (user as any).role === 'admin',
     retry: false,
   });
 
   const { data: divisions } = useQuery({
     queryKey: ["/api/divisions"],
-    enabled: !!user && user.role === 'admin',
+    enabled: !!user && (user as any).role === 'admin',
     retry: false,
   });
 
