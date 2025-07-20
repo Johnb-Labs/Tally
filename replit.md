@@ -16,6 +16,8 @@ Preferred communication style: Simple, everyday language.
 - ✓ Included troubleshooting section and general features guide
 - ✓ Created DEPLOYMENT_GUIDE.html for Linux server deployment
 - ✓ Added complete server setup instructions with PostgreSQL, Nginx, SSL
+- ✓ Created comprehensive developer documentation suite in docs/ directory
+- ✓ Added 8 separate guide files covering all aspects of development
 - ✓ Comprehensive dark mode functionality implemented across all pages
 - ✓ Enhanced Landing page with video background and improved branding layout
 - ✓ Fixed authentication API calls in Login/Register forms
