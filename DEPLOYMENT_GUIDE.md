@@ -51,7 +51,7 @@ sudo ./deploy.sh
 Edit the `.env` file with your specific configuration:
 
 ```bash
-sudo -u tally nano /opt/tally/.env
+sudo -u tally nano tally/.env
 ```
 
 Required environment variables:
