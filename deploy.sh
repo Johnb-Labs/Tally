@@ -40,7 +40,9 @@ if [[ -f "package.json" && -d "client" && -d "server" ]]; then
     npm run db:push
     
     print_status "Development deployment completed!"
-    print_warning "To start the development server, run: npm run dev"
+    print_warning "Choose how to run the application:"
+    echo "  - Development: npm run dev"
+    echo "  - Production: pm2 start ecosystem.config.js"
     
 elif [[ -f "/opt/tally/package.json" ]]; then
     print_status "Production environment detected"
@@ -60,7 +62,11 @@ elif [[ -f "/opt/tally/package.json" ]]; then
     npm run db:push
     
     print_status "Restarting application..."
-    pm2 restart tally || pm2 start ecosystem.config.js
+    if pm2 list | grep -q "tally"; then
+        pm2 restart tally
+    else
+        pm2 start ecosystem.config.js
+    fi
     
     print_status "Reloading Nginx..."
     sudo systemctl reload nginx || print_warning "Nginx reload failed"
