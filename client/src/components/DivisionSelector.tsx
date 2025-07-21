@@ -67,7 +67,7 @@ export function DivisionSelector({
               <div className="flex items-center gap-2">
                 <Globe className="h-4 w-4" />
                 <span>All Divisions</span>
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs text-white">
                   Company View
                 </Badge>
               </div>

@@ -301,7 +301,7 @@ export default function CompanyDashboard() {
               <CardTitle>Division Breakdown</CardTitle>
               <CardDescription>Contact distribution by division</CardDescription>
             </div>
-            <Badge variant="outline">Company View</Badge>
+            <Badge variant="outline" className="text-white">Company View</Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             {companyStats.divisionStats.length > 0 ? (
@@ -344,7 +344,7 @@ export default function CompanyDashboard() {
               <CardTitle>Division Summary</CardTitle>
               <CardDescription>Detailed information for all divisions</CardDescription>
             </div>
-            <Badge variant="outline">All Divisions</Badge>
+            <Badge variant="outline" className="text-white">All Divisions</Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             {companyStats.divisionStats.map((division) => (
