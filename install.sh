@@ -476,9 +476,11 @@ show_final_instructions() {
     echo
     print_warning "Don't forget to:"
     echo "- Configure your domain name in Nginx"
-    echo "- Set up environment variables"
+    echo "- Set up environment variables (.env file)"
     echo "- Configure database connection"
     echo "- Set up SSL certificate if needed"
+    echo "- Configure Replit OAuth (REPL_ID, REPLIT_DOMAINS)"
+    echo "- Test contact deletion and bulk operations (admin/uploader roles)"
     echo
     if [[ -f /tmp/database_config.txt ]]; then
         echo "Database configuration:"

@@ -7,14 +7,14 @@
    - Navigate to your Tally application URL
    - You'll see the landing page with video background
 
-2. **Create Your Account**
-   - Click "Create Account" on the landing page
-   - Fill in your details (email, password, first name, last name)
-   - Click "Register" to create your account
+2. **Admin Setup Required**
+   - Registration is disabled for security
+   - System administrators must create user accounts
+   - Contact your admin to get your account credentials
 
 3. **First Login**
    - Click "Sign In" on the landing page
-   - Enter your email and password
+   - Enter your provided email and password
    - Click "Login" to access the dashboard
 
 ---
@@ -75,26 +75,29 @@ Admins have full access to all features and can manage the entire system.
    - Preview changes in real-time
 4. Click "Save Branding" to apply changes
 
-### 4. Data Import & Management
-**Purpose**: Upload and process contact data files
+### 4. Contact Management & Deletion
+**Purpose**: View, search, and manage imported contacts
 
 **Steps**:
-1. Click "Import Data" in the sidebar
-2. **Upload Files**:
-   - Drag and drop Excel (.xlsx, .xls) or CSV files
-   - Or click "Choose Files" to browse
-   - Files must be under 10MB
-3. **Field Mapping**:
-   - Go to "Field Mapping" in the sidebar
-   - Select your uploaded file
-   - Map Excel/CSV columns to database fields:
-     - First Name → firstName
-     - Last Name → lastName
-     - Email → email
-     - Phone → phone
-     - Company → company
-     - Position → position
-   - Click "Process" to import data
+1. Click "Contacts" in the sidebar under Data Management
+2. **View Contacts**:
+   - Browse all contacts in your accessible divisions
+   - Each contact shows name, email, phone, company, and division
+   - Contacts display their assigned division with color coding
+3. **Search & Filter**:
+   - Use the search bar to find specific contacts
+   - Search works across names, emails, phones, and companies
+   - Results update in real-time as you type
+4. **Delete Contacts** (Admin/Uploader only):
+   - **Individual Deletion**: Click trash icon next to any contact
+   - **Bulk Operations**: 
+     - Click "Select" button to enter bulk mode
+     - Use master checkbox to select/deselect all
+     - Check individual contacts for selective deletion
+     - Click "Delete X Contacts" for bulk deletion
+     - Confirm in dialog prompt (shows count for verification)
+   - **Security**: Only admin and uploader roles can delete contacts
+   - **Data Safety**: Deletion is soft delete (preserves data integrity)
 
 ### 5. Audit Log Monitoring
 **Purpose**: Track all system activities and changes
@@ -125,24 +128,27 @@ Uploaders can import data and manage contacts but cannot access administrative f
 **Purpose**: Upload Excel or CSV files with contact information
 
 **Steps**:
-1. Click "Import Data" in the sidebar
+1. Click "Upload" in the sidebar under Data Management
 2. **Prepare Your File**:
    - Ensure your Excel/CSV has clear column headers
    - Common columns: First Name, Last Name, Email, Phone, Company, Position
+   - Use South African address format: Address, City, Province, Postal Code
    - Remove any duplicate or test data
 3. **Upload Process**:
+   - Select target division from dropdown (required)
    - Drag and drop your file or click "Choose Files"
-   - File uploads automatically and shows in "Recent Uploads"
-   - Status shows as "Pending" until processed
+   - File uploads automatically and redirects to field mapping
+   - Status shows processing animation until complete
 
-### 3. Field Mapping
+### 3. Field Mapping (Automatic Navigation)
 **Purpose**: Tell the system which columns contain which data
 
 **Steps**:
-1. Click "Field Mapping" in the sidebar
-2. **Select Your Upload**:
-   - Find your file in the "Pending Uploads" section
-   - Click "Map Fields" next to your file
+1. After upload, you're automatically redirected to field mapping
+2. **Auto-Mapping Active**:
+   - System intelligently suggests field mappings
+   - Common patterns are automatically detected
+   - Review suggested mappings for accuracy
 3. **Map Columns**:
    - Left side shows your Excel/CSV columns
    - Right side shows database fields
@@ -150,8 +156,11 @@ Uploaders can import data and manage contacts but cannot access administrative f
      - "First Name" column → "First Name" field
      - "Email Address" column → "Email" field
      - "Company Name" column → "Company" field
+     - "Province" column → "Province" field (South African format)
+     - "Postal Code" column → "Postal Code" field
    - Leave unmapped if column isn't needed
 4. **Process Data**:
+   - Division is pre-selected from upload step
    - Review your mappings
    - Click "Process" to import contacts
    - Status changes to "Processing" then "Completed"
