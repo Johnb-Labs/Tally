@@ -186,10 +186,10 @@ export default function CompanyDashboard() {
       bgColor: "bg-green-100",
     },
     {
-      label: "Active Divisions",
-      value: companyStats.totalDivisions.toString(),
-      change: "Operating",
-      icon: Building2,
+      label: "Physical Addresses",
+      value: (companyStats.totalAddresses || 0).toLocaleString(),
+      change: "Complete",
+      icon: MapPin,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
@@ -295,16 +295,16 @@ export default function CompanyDashboard() {
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-orange-600" />
+                  <Building2 className="w-5 h-5 text-orange-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Physical Addresses</p>
-                  <p className="text-xs text-muted-foreground">Complete addresses</p>
+                  <p className="text-sm font-medium">Active Divisions</p>
+                  <p className="text-xs text-muted-foreground">Operating units</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-lg font-bold">{companyStats.totalAddresses?.toLocaleString() || 0}</p>
-                <p className="text-xs text-muted-foreground">addresses</p>
+                <p className="text-lg font-bold">{companyStats.totalDivisions}</p>
+                <p className="text-xs text-muted-foreground">divisions</p>
               </div>
             </div>
           </CardContent>
