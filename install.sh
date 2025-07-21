@@ -67,7 +67,11 @@ install_nodejs() {
     print_status "Installing Node.js ${NODE_VERSION}..."
     
     # Install Node.js repository
-    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | ${SUDO_CMD} -E bash -
+    if [[ $EUID -eq 0 ]]; then
+        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
+    else
+        curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
+    fi
     ${SUDO_CMD} apt-get install -y nodejs
     
     # Verify installation
