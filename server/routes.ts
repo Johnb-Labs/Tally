@@ -847,6 +847,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete single contact
+  app.delete("/api/contacts/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const contactToDelete = await storage.getContact(parseInt(id));
+      
+      if (!contactToDelete) {
+        return res.status(404).json({ message: "Contact not found" });
+      }
+      
+      await storage.deleteContact(parseInt(id));
+      
+      await logAudit(
+        req.user.id,
+        'contact_deleted',
+        'contact',
+        id,
+        contactToDelete,
+        null,
+        contactToDelete.divisionId ?? undefined,
+        req
+      );
+      
+      res.json({ message: "Contact deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      res.status(500).json({ message: "Failed to delete contact" });
+    }
+  });
+
+  // Bulk delete contacts
+  app.delete("/api/contacts", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+      
+      const { contactIds } = req.body;
+      
+      if (!Array.isArray(contactIds) || contactIds.length === 0) {
+        return res.status(400).json({ message: "Contact IDs array is required" });
+      }
+      
+      // Get contacts before deletion for audit log
+      const contactsToDelete = await Promise.all(
+        contactIds.map(id => storage.getContact(parseInt(id)))
+      );
+      
+      const deletedCount = await storage.bulkDeleteContacts(contactIds.map(id => parseInt(id)));
+      
+      // Log audit for each deleted contact
+      for (const contact of contactsToDelete) {
+        if (contact) {
+          await logAudit(
+            req.user.id,
+            'contact_deleted',
+            'contact',
+            contact.id.toString(),
+            contact,
+            null,
+            contact.divisionId ?? undefined,
+            req
+          );
+        }
+      }
+      
+      res.json({ 
+        message: `${deletedCount} contacts deleted successfully`,
+        deletedCount 
+      });
+    } catch (error) {
+      console.error("Error bulk deleting contacts:", error);
+      res.status(500).json({ message: "Failed to delete contacts" });
+    }
+  });
+
   // Audit Log Routes (Admin only)
   app.get("/api/audit-logs", isAuthenticated, async (req: any, res) => {
     try {
