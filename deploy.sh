@@ -31,10 +31,10 @@ if [[ -f "package.json" && -d "client" && -d "server" ]]; then
     print_status "Development environment detected"
     
     print_status "Installing dependencies..."
-    apt install npm
+    npm install
     
     print_status "Building application..."
-    npm run build
+    npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
     
     print_status "Running database migrations..."
     npm run db:push
@@ -56,7 +56,7 @@ elif [[ -f "/opt/tally/package.json" ]]; then
     npm ci --production
     
     print_status "Building application..."
-    npm run build
+    npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
     
     print_status "Running database migrations..."
     npm run db:push
