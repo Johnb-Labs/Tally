@@ -83,22 +83,13 @@ export default function Landing() {
               and division-specific themes. Import, manage, and analyze your contact data with ease.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Link href="/login">
                 <Button 
                   size="lg" 
                   className="px-8 py-3 text-lg bg-white text-black hover:bg-white/90"
                 >
                   Sign In
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="px-8 py-3 text-lg border-white text-white hover:bg-white hover:text-black"
-                >
-                  Create Account
                 </Button>
               </Link>
             </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tally by JBLabs - Linux Server Deployment Guide</title>
+    <title>Tally by JBLabs - Ubuntu 24.04 Deployment Guide</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -134,131 +134,215 @@
     </style>
 </head>
 <body>
-    <h1>Tally by JBLabs - Linux Server Deployment Guide</h1>
+    <h1>Tally by JBLabs - Ubuntu 24.04 Deployment Guide</h1>
 
     <div class="requirement-box">
         <h3>📋 Prerequisites</h3>
         <ul>
-            <li><strong>Linux Server:</strong> Ubuntu 20.04+, Debian 11+, CentOS 7+, or RHEL 8+</li>
+            <li><strong>Server OS:</strong> Ubuntu 24.04 LTS (fresh installation recommended)</li>
             <li><strong>RAM:</strong> Minimum 2GB, Recommended 4GB+</li>
-            <li><strong>Storage:</strong> Minimum 10GB free space</li>
+            <li><strong>Storage:</strong> Minimum 20GB free space</li>
             <li><strong>Network:</strong> Internet access for package installation</li>
-            <li><strong>Access:</strong> SSH access with sudo privileges</li>
-            <li><strong>Domain:</strong> A domain name pointing to your server (optional but recommended)</li>
+            <li><strong>Access:</strong> Non-root user with sudo privileges</li>
+            <li><strong>Domain:</strong> A domain name pointing to your server (optional but recommended for SSL)</li>
         </ul>
+    </div>
+
+    <div class="success-box">
+        <h3>🚀 Quick Start - Automated Installation</h3>
+        <p>We now provide a fully automated installation script that sets up everything for you!</p>
+        <div class="command">curl -O https://raw.githubusercontent.com/yourusername/tally/main/install.sh
+chmod +x install.sh
+./install.sh</div>
+        <p><strong>The automated script will:</strong></p>
+        <ul>
+            <li>Install Node.js 20, PostgreSQL 16, Nginx, and PM2</li>
+            <li>Create secure system user and directories</li>
+            <li>Configure firewall and security settings</li>
+            <li>Set up SSL certificates with Let's Encrypt</li>
+            <li>Create automated backups and monitoring</li>
+            <li>Generate deployment and management scripts</li>
+        </ul>
+        <p>Skip to <a href="#post-installation">Post-Installation Setup</a> if using the automated script.</p>
     </div>
 
     <h2>Table of Contents</h2>
     <ol>
-        <li><a href="#server-setup">Server Initial Setup</a></li>
-        <li><a href="#nodejs-install">Install Node.js and npm</a></li>
-        <li><a href="#postgresql-setup">Install and Configure PostgreSQL</a></li>
-        <li><a href="#nginx-setup">Install and Configure Nginx</a></li>
-        <li><a href="#app-deployment">Deploy the Application</a></li>
+        <li><a href="#automated-install">Automated Installation (Recommended)</a></li>
+        <li><a href="#docker-deployment">Docker Deployment</a></li>
+        <li><a href="#manual-install">Manual Installation</a></li>
+        <li><a href="#post-installation">Post-Installation Setup</a></li>
         <li><a href="#ssl-setup">SSL Certificate Setup</a></li>
-        <li><a href="#process-management">Process Management with PM2</a></li>
-        <li><a href="#monitoring">Monitoring and Logs</a></li>
+        <li><a href="#monitoring">Monitoring and Maintenance</a></li>
         <li><a href="#troubleshooting">Troubleshooting</a></li>
+        <li><a href="#security">Security Hardening</a></li>
+        <li><a href="#backups">Backup and Restore</a></li>
     </ol>
 
     <div class="page-break"></div>
 
-    <h2 id="server-setup">1. Server Initial Setup</h2>
+    <h2 id="automated-install">1. Automated Installation (Recommended)</h2>
+
+    <div class="step-section">
+        <h3>Step 1.1: Download and Run Installation Script</h3>
+        <p>The automated installation script handles all system setup, including security hardening and SSL certificates.</p>
+        <div class="command"># Download the installation script
+curl -O https://raw.githubusercontent.com/yourusername/tally/main/install.sh
+
+# Make it executable
+chmod +x install.sh
+
+# Run the installation (as non-root user with sudo)
+./install.sh</div>
+        <div class="warning-box">
+            <strong>Important:</strong> Run this as a non-root user with sudo privileges. The script will exit if run as root for security reasons.
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 1.2: What the Script Does</h3>
+        <p>The automated installation script will:</p>
+        <div class="checklist">
+            <ul>
+                <li>Update system packages to latest versions</li>
+                <li>Install Node.js 20 LTS from NodeSource repository</li>
+                <li>Install and configure PostgreSQL 16</li>
+                <li>Create secure database with generated password</li>
+                <li>Install and configure Nginx with security headers</li>
+                <li>Create dedicated system user 'tally'</li>
+                <li>Set up application directory at /opt/tally</li>
+                <li>Install PM2 for process management</li>
+                <li>Configure UFW firewall (SSH, HTTP, HTTPS)</li>
+                <li>Create systemd service as PM2 backup</li>
+                <li>Set up log rotation and automated backups</li>
+                <li>Optionally install SSL certificates with Let's Encrypt</li>
+                <li>Create deployment and management scripts</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 1.3: Post-Installation Files Created</h3>
+        <div class="file-content">/opt/tally/                   # Application directory
+├── deploy.sh                 # Deployment script
+├── ecosystem.config.js       # PM2 configuration
+├── logs/                     # Application logs
+└── .env                      # Environment variables
+
+/etc/nginx/sites-available/tally  # Nginx configuration
+/usr/local/bin/tally-backup.sh    # Automated backup script
+/tmp/database_config.txt           # Database credentials</div>
+    </div>
+
+    <h2 id="docker-deployment">2. Docker Deployment</h2>
+
+    <div class="step-section">
+        <h3>Step 2.1: Using Docker Compose</h3>
+        <p>Alternative deployment method using containerization:</p>
+        <div class="command"># Clone your repository
+git clone https://github.com/yourusername/tally.git
+cd tally
+
+# Copy environment template
+cp .env.example .env
+
+# Edit environment variables
+nano .env
+
+# Start all services with Docker Compose
+docker-compose up -d</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 2.2: Docker Services</h3>
+        <p>The Docker Compose configuration includes:</p>
+        <div class="checklist">
+            <ul>
+                <li><strong>tally-app:</strong> Main Node.js application</li>
+                <li><strong>postgres:</strong> PostgreSQL 16 database</li>
+                <li><strong>nginx:</strong> Reverse proxy and web server</li>
+                <li><strong>redis:</strong> Session store (optional)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2 id="manual-install">3. Manual Installation</h2>
+
+    <div class="step-section">
+        <h3>Step 3.1: Server Initial Setup</h3>
 
     <div class="step-section">
         <h3>Step 1.1: Connect to Your Server</h3>
-        <div class="command">ssh root@your-server-ip</div>
-        <p>Replace <code>your-server-ip</code> with your actual server IP address.</p>
-    </div>
+        <div class="command"># Connect to your Ubuntu 24.04 server
+ssh your-username@your-server-ip
 
-    <div class="step-section">
-        <h3>Step 1.2: Update System Packages</h3>
-        <div class="command"># For Ubuntu/Debian:
+# Update system packages
 sudo apt update && sudo apt upgrade -y
 
-# For CentOS/RHEL:
-sudo yum update -y</div>
-    </div>
-
-    <div class="step-section">
-        <h3>Step 1.3: Install Essential Tools</h3>
-        <div class="command"># For Ubuntu/Debian:
-sudo apt install -y curl wget git unzip software-properties-common
-
-# For CentOS/RHEL:
-sudo yum install -y curl wget git unzip epel-release</div>
-    </div>
-
-    <div class="step-section">
-        <h3>Step 1.4: Create Application User (Recommended)</h3>
-        <div class="command"># Create a dedicated user for the application
-sudo adduser tally
-sudo usermod -aG sudo tally
-
-# Switch to the new user
-su - tally</div>
+# Install essential tools
+sudo apt install -y curl wget git unzip software-properties-common ufw</div>
         <div class="warning-box">
-            <strong>Security Note:</strong> Running applications as a non-root user is a security best practice.
+            <strong>Note:</strong> If you used the automated installation script, skip this manual section and go to <a href="#post-installation">Post-Installation Setup</a>.
         </div>
     </div>
 
-    <h2 id="nodejs-install">2. Install Node.js and npm</h2>
-
     <div class="step-section">
-        <h3>Step 2.1: Install Node.js 20 (LTS)</h3>
-        <div class="command"># Download and install Node.js using NodeSource repository
+        <h3>Step 3.2: Install Node.js 20</h3>
+        <div class="command"># Install Node.js 20 LTS
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-# For CentOS/RHEL:
-curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
-sudo yum install -y nodejs</div>
+# Verify installation
+node --version && npm --version</div>
     </div>
 
     <div class="step-section">
-        <h3>Step 2.2: Verify Installation</h3>
-        <div class="command">node --version
-npm --version</div>
-        <p>You should see Node.js version 20.x.x and npm version 10.x.x or higher.</p>
+        <h3>Step 3.3: Create Application User</h3>
+        <div class="command"># Create system user for the application
+sudo useradd --system --home-dir /opt/tally --shell /bin/bash tally
+sudo mkdir -p /opt/tally
+sudo chown tally:tally /opt/tally</div>
     </div>
 
-    <h2 id="postgresql-setup">3. Install and Configure PostgreSQL</h2>
-
     <div class="step-section">
-        <h3>Step 3.1: Install PostgreSQL</h3>
-        <div class="command"># For Ubuntu/Debian:
+        <h3>Step 3.4: Install and Configure PostgreSQL</h3>
+        <div class="command"># Install PostgreSQL 16
 sudo apt install -y postgresql postgresql-contrib
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-# For CentOS/RHEL:
-sudo yum install -y postgresql postgresql-server postgresql-contrib
-sudo postgresql-setup initdb</div>
+# Create database and user
+sudo -u postgres psql -c "CREATE USER tally WITH PASSWORD 'your_secure_password';"
+sudo -u postgres psql -c "CREATE DATABASE tally OWNER tally;"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE tally TO tally;"</div>
     </div>
 
     <div class="step-section">
-        <h3>Step 3.2: Start and Enable PostgreSQL</h3>
-        <div class="command">sudo systemctl start postgresql
-sudo systemctl enable postgresql</div>
+        <h3>Step 3.5: Install and Configure Nginx</h3>
+        <div class="command"># Install Nginx
+sudo apt install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx</div>
     </div>
 
     <div class="step-section">
-        <h3>Step 3.3: Configure PostgreSQL</h3>
-        <div class="command"># Switch to postgres user
-sudo -i -u postgres
+        <h3>Step 3.6: Install PM2</h3>
+        <div class="command"># Install PM2 globally
+sudo npm install -g pm2
 
-# Create database and user for Tally
-psql << EOF
-CREATE DATABASE tally_db;
-CREATE USER tally_user WITH ENCRYPTED PASSWORD 'your_secure_password_here';
-GRANT ALL PRIVILEGES ON DATABASE tally_db TO tally_user;
-ALTER USER tally_user CREATEDB;
-\q
-EOF
+# Setup PM2 to start on boot
+sudo pm2 startup systemd -u tally --hp /opt/tally</div>
+    </div>
 
-# Exit postgres user
-exit</div>
-        <div class="warning-box">
-            <strong>Important:</strong> Replace 'your_secure_password_here' with a strong password. Save this password as you'll need it for the application configuration.
-        </div>
+    <div class="step-section">
+        <h3>Step 3.7: Configure Firewall</h3>
+        <div class="command"># Enable and configure UFW firewall
+sudo ufw --force enable
+sudo ufw allow ssh
+sudo ufw allow 'Nginx Full'
+sudo ufw status verbose</div>
     </div>
 
     <div class="step-section">
@@ -281,59 +365,113 @@ exit</div>
 
     <div class="page-break"></div>
 
-    <h2 id="nginx-setup">4. Install and Configure Nginx</h2>
+    <h2 id="post-installation">4. Post-Installation Setup</h2>
 
     <div class="step-section">
-        <h3>Step 4.1: Install Nginx</h3>
-        <div class="command"># For Ubuntu/Debian:
-sudo apt install -y nginx
+        <h3>Step 4.1: Deploy Your Application</h3>
+        <p>After installation (automated or manual), deploy your Tally application:</p>
+        <div class="command"># Switch to application directory
+cd /opt/tally
 
-# For CentOS/RHEL:
-sudo yum install -y nginx</div>
+# Clone your repository (replace with your actual repository URL)
+sudo -u tally git clone https://github.com/yourusername/tally.git .
+
+# Create environment file from template
+sudo -u tally cp .env.example .env</div>
     </div>
 
     <div class="step-section">
-        <h3>Step 4.2: Start and Enable Nginx</h3>
-        <div class="command">sudo systemctl start nginx
-sudo systemctl enable nginx</div>
-    </div>
+        <h3>Step 4.2: Configure Environment Variables</h3>
+        <div class="command"># Edit environment configuration
+sudo -u tally nano /opt/tally/.env</div>
+        <p>Update the following key variables:</p>
+        <div class="file-content"># Database Configuration (use password from /tmp/database_config.txt)
+DATABASE_URL=postgresql://tally:your_db_password@localhost:5432/tally
+PGHOST=localhost
+PGPORT=5432
+PGDATABASE=tally
+PGUSER=tally
+PGPASSWORD=your_db_password
 
-    <div class="step-section">
-        <h3>Step 4.3: Configure Firewall (if enabled)</h3>
-        <div class="command"># For Ubuntu (ufw):
-sudo ufw allow 'Nginx Full'
-sudo ufw allow OpenSSH
-sudo ufw enable
+# Session Configuration (generate with: openssl rand -base64 64)
+SESSION_SECRET=your-super-secret-session-key-here
 
-# For CentOS/RHEL (firewalld):
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --permanent --add-service=ssh
-sudo firewall-cmd --reload</div>
-    </div>
+# Replit Authentication Configuration
+REPL_ID=your-repl-id
+REPLIT_DOMAINS=your-domain.com
+ISSUER_URL=https://replit.com/oidc
 
-    <h2 id="app-deployment">5. Deploy the Application</h2>
-
-    <div class="step-section">
-        <h3>Step 5.1: Clone the Repository</h3>
-        <div class="command"># Navigate to home directory
-cd /home/tally
-
-# Clone your repository (replace with your actual GitHub URL)
-git clone https://github.com/yourusername/tally-app.git
-cd tally-app</div>
+# Application Configuration
+NODE_ENV=production
+PORT=5000</div>
         <div class="warning-box">
-            <strong>Note:</strong> If your repository is private, you'll need to set up SSH keys or use a personal access token for authentication.
+            <strong>Critical:</strong> If you used the automated script, check <code>/tmp/database_config.txt</code> for the generated database password.
         </div>
     </div>
 
     <div class="step-section">
-        <h3>Step 5.2: Install Dependencies</h3>
-        <div class="command"># Install all project dependencies
-npm install
+        <h3>Step 4.3: Run Deployment Script</h3>
+        <div class="command"># Run the deployment script (created by automated installer)
+cd /opt/tally
+./deploy.sh</div>
+        <p>If the deployment script doesn't exist (manual installation), run these commands:</p>
+        <div class="command"># Install dependencies and build
+sudo -u tally npm ci --production
+sudo -u tally npm run build
 
-# Install production dependencies only (optional, for production)
-# npm ci --only=production</div>
+# Initialize database
+sudo -u tally npm run db:push
+
+# Start application with PM2
+sudo -u tally pm2 start ecosystem.config.js
+sudo -u tally pm2 save</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 4.4: Verify Installation</h3>
+        <div class="command"># Check application status
+sudo -u tally pm2 status
+
+# Check application logs
+sudo -u tally pm2 logs tally
+
+# Check if application is responding
+curl http://localhost:5000</div>
+        <p>You should see the application running on port 5000.</p>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 4.5: Configure Domain Name</h3>
+        <p>If you have a domain name, update the Nginx configuration:</p>
+        <div class="command"># Edit Nginx configuration
+sudo nano /etc/nginx/sites-available/tally
+
+# Replace 'server_name _;' with your domain
+# server_name your-domain.com;
+
+# Reload Nginx
+sudo systemctl reload nginx</div>
+    </div>
+
+    <h2 id="ssl-setup">5. SSL Certificate Setup</h2>
+
+    <div class="step-section">
+        <h3>Step 5.1: Install Certbot</h3>
+        <div class="command"># Install Certbot for Let's Encrypt SSL certificates
+sudo apt install -y certbot python3-certbot-nginx</div>
+    </div>
+
+    <div class="step-section">
+        <h3>Step 5.2: Get SSL Certificate</h3>
+        <div class="command"># Get SSL certificate (replace your-domain.com with your actual domain)
+sudo certbot --nginx -d your-domain.com
+
+# Or for both www and non-www versions:
+sudo certbot --nginx -d your-domain.com -d www.your-domain.com</div>
+        <div class="success-box">
+            <strong>Automatic Renewal:</strong> Certbot automatically sets up certificate renewal. Verify with:
+            <div class="command">sudo systemctl status certbot.timer</div>
+        </div>
     </div>
 
     <div class="step-section">
@@ -408,72 +546,21 @@ npm start</div>
 
     <div class="page-break"></div>
 
-    <h2 id="ssl-setup">6. SSL Certificate Setup</h2>
+    <h2 id="monitoring">6. Monitoring and Maintenance</h2>
 
     <div class="step-section">
-        <h3>Step 6.1: Install Certbot</h3>
-        <div class="command"># For Ubuntu/Debian:
-sudo apt install -y certbot python3-certbot-nginx
+        <h3>Step 6.1: Check Application Status</h3>
+        <div class="command"># Check PM2 processes
+sudo -u tally pm2 status
 
-# For CentOS/RHEL:
-sudo yum install -y certbot python3-certbot-nginx</div>
+# Check application logs
+sudo -u tally pm2 logs tally
+
+# Monitor real-time logs
+sudo -u tally pm2 logs --lines 100</div>
     </div>
 
-    <div class="step-section">
-        <h3>Step 6.2: Configure Nginx for Tally</h3>
-        <p>Create an Nginx configuration file for your application:</p>
-        <div class="command">sudo nano /etc/nginx/sites-available/tally</div>
-        <p>Add the following configuration:</p>
-        <div class="file-content">server {
-    listen 80;
-    server_name yourdomain.com www.yourdomain.com;
 
-    # Redirect to HTTPS
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name yourdomain.com www.yourdomain.com;
-
-    # SSL Configuration (will be configured by Certbot)
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-
-    # Security headers
-    add_header X-Frame-Options DENY;
-    add_header X-Content-Type-Options nosniff;
-    add_header X-XSS-Protection "1; mode=block";
-    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-
-    # File upload size limit
-    client_max_body_size 50M;
-
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        proxy_read_timeout 300s;
-        proxy_connect_timeout 300s;
-    }
-
-    # Static file serving (if needed)
-    location /static/ {
-        alias /home/tally/tally-app/dist/public/;
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-}</div>
-        <div class="warning-box">
-            <strong>Important:</strong> Replace 'yourdomain.com' with your actual domain name throughout the configuration.
-        </div>
-    </div>
 
     <div class="step-section">
         <h3>Step 6.3: Enable the Site</h3>
