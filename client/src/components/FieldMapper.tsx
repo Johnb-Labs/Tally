@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -24,17 +25,25 @@ const DATABASE_FIELDS = [
   { key: 'jobTitle', label: 'Job Title', required: false },
   { key: 'address', label: 'Address', required: false },
   { key: 'city', label: 'City', required: false },
-  { key: 'state', label: 'State', required: false },
-  { key: 'zipCode', label: 'ZIP Code', required: false },
+  { key: 'province', label: 'Province', required: false },
+  { key: 'postalCode', label: 'Postal Code', required: false },
   { key: 'country', label: 'Country', required: false },
   { key: 'notes', label: 'Notes', required: false },
 ];
 
 export default function FieldMapper({ upload, onComplete, onCancel, isProcessing }: FieldMapperProps) {
+  const { user } = useAuth();
   const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
   const [sampleData, setSampleData] = useState<any[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [errors, setErrors] = useState<string[]>([]);
+  const [selectedDivision, setSelectedDivision] = useState<string>('');
+
+  // Fetch divisions
+  const { data: divisions } = useQuery({
+    queryKey: ["/api/divisions"],
+    enabled: !!user,
+  });
 
   // Mock sample data parsing - in real app, this would be done server-side
   useEffect(() => {
@@ -60,6 +69,11 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
   const validateMapping = () => {
     const newErrors: string[] = [];
     
+    // Check if division is selected
+    if (!selectedDivision) {
+      newErrors.push('Please select a division to import contacts into.');
+    }
+    
     // Check if at least one required field is mapped
     const requiredFieldsMapped = DATABASE_FIELDS
       .filter(field => field.required)
@@ -83,7 +97,10 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
 
   const handleComplete = () => {
     if (validateMapping()) {
-      onComplete(fieldMapping);
+      onComplete({
+        fieldMapping,
+        divisionId: parseInt(selectedDivision),
+      });
     }
   };
 
@@ -120,7 +137,7 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
                   <span>Field Mapping: {upload.originalName}</span>
                 </CardTitle>
                 <CardDescription>
-                  Map your file columns to database fields
+                  Map your file columns to database fields and select target division
                 </CardDescription>
               </div>
             </div>
@@ -145,7 +162,7 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
               </div>
               <Button 
                 onClick={handleComplete}
-                disabled={!status.requiredMapped || isProcessing}
+                disabled={!status.requiredMapped || !selectedDivision || isProcessing}
                 className="min-w-24"
               >
                 {isProcessing ? (
@@ -176,6 +193,32 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
           </CardContent>
         </Card>
       )}
+
+      {/* Division Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Division Selection</CardTitle>
+          <CardDescription>
+            Choose which division these contacts should be imported into
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="max-w-sm">
+            <Select value={selectedDivision} onValueChange={setSelectedDivision}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a division..." />
+              </SelectTrigger>
+              <SelectContent>
+                {divisions && Array.isArray(divisions) ? divisions.map((division: any) => (
+                  <SelectItem key={division.id} value={division.id.toString()}>
+                    {division.name}
+                  </SelectItem>
+                )) : null}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Field Mapping */}
       <Card>

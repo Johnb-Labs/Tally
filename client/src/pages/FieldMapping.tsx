@@ -37,7 +37,7 @@ export default function FieldMapping() {
   // Check permissions
   useEffect(() => {
     if (user && !authLoading) {
-      const canUpload = user.role === 'admin' || user.role === 'uploader';
+      const canUpload = (user as any)?.role === 'admin' || (user as any)?.role === 'uploader';
       if (!canUpload) {
         toast({
           title: "Access Denied",
@@ -59,10 +59,11 @@ export default function FieldMapping() {
   });
 
   const processMutation = useMutation({
-    mutationFn: async ({ uploadId, fieldMapping }: { uploadId: number; fieldMapping: any }) => {
+    mutationFn: async ({ uploadId, fieldMapping, divisionId }: { uploadId: number; fieldMapping: any; divisionId?: number }) => {
       return await apiRequest('PATCH', `/api/uploads/${uploadId}`, {
         status: 'processing',
         fieldMapping,
+        divisionId,
       });
     },
     onSuccess: () => {
@@ -108,14 +109,15 @@ export default function FieldMapping() {
     return null; // Will redirect in useEffect
   }
 
-  const canUpload = user.role === 'admin' || user.role === 'uploader';
+  const canUpload = (user as any)?.role === 'admin' || (user as any)?.role === 'uploader';
   if (!canUpload) {
     return null; // Will redirect in useEffect
   }
 
-  const pendingUploads = uploads?.filter((upload: any) => upload.status === 'pending') || [];
-  const processingUploads = uploads?.filter((upload: any) => upload.status === 'processing') || [];
-  const completedUploads = uploads?.filter((upload: any) => upload.status === 'completed') || [];
+  const uploadsArray = Array.isArray(uploads) ? uploads : [];
+  const pendingUploads = uploadsArray.filter((upload: any) => upload.status === 'pending');
+  const processingUploads = uploadsArray.filter((upload: any) => upload.status === 'processing');
+  const completedUploads = uploadsArray.filter((upload: any) => upload.status === 'completed');
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -147,11 +149,12 @@ export default function FieldMapping() {
     );
   };
 
-  const handleFieldMappingComplete = (fieldMapping: any) => {
+  const handleFieldMappingComplete = (data: any) => {
     if (selectedUpload) {
       processMutation.mutate({
         uploadId: selectedUpload.id,
-        fieldMapping,
+        fieldMapping: data.fieldMapping,
+        divisionId: data.divisionId,
       });
     }
   };
@@ -317,7 +320,7 @@ export default function FieldMapping() {
                     </div>
                   </CardContent>
                 </Card>
-              ) : !uploads?.length ? (
+              ) : !uploadsArray.length ? (
                 <Card>
                   <CardContent className="py-12">
                     <div className="text-center">

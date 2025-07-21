@@ -585,6 +585,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/uploads/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const { status, fieldMapping, divisionId } = req.body;
+      
+      const oldUpload = await storage.getUpload(parseInt(id));
+      if (!oldUpload) {
+        return res.status(404).json({ message: "Upload not found" });
+      }
+      
+      const updateData: any = {};
+      if (status) updateData.status = status;
+      if (fieldMapping) updateData.fieldMapping = fieldMapping;
+      if (divisionId !== undefined) updateData.divisionId = divisionId;
+      
+      const updatedUpload = await storage.updateUpload(parseInt(id), updateData);
+      
+      await logAudit(
+        req.user.id,
+        'upload_updated',
+        'upload',
+        id,
+        oldUpload,
+        updatedUpload,
+        updatedUpload.divisionId ?? undefined,
+        req
+      );
+      
+      // If processing status, simulate processing
+      if (status === 'processing') {
+        // In a real application, this would trigger background processing
+        setTimeout(async () => {
+          try {
+            await storage.updateUpload(parseInt(id), { 
+              status: 'completed', 
+              recordsImported: 150, // Mock value - would be actual count
+              completedAt: new Date()
+            });
+          } catch (error) {
+            console.error('Error completing upload processing:', error);
+            await storage.updateUpload(parseInt(id), { 
+              status: 'failed', 
+              errorMessage: 'Processing failed'
+            });
+          }
+        }, 3000);
+      }
+      
+      res.json(updatedUpload);
+    } catch (error) {
+      console.error("Error updating upload:", error);
+      res.status(500).json({ message: "Failed to update upload" });
+    }
+  });
+
   // Contact Routes
   app.get("/api/contacts", isAuthenticated, async (req: any, res) => {
     try {
