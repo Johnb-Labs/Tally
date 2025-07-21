@@ -64,20 +64,20 @@ export default function Dashboard() {
 
   // Division-specific queries (only when not showing company view)
   const { data: contactStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/contacts/stats", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id }],
-    enabled: !!user && selectedView !== "all",
+    queryKey: ["/api/contacts/stats", typeof selectedView === 'number' ? selectedView : currentDivision?.id],
+    enabled: !!user && selectedView !== "all" && (typeof selectedView === 'number' || currentDivision?.id),
     retry: false,
   });
 
   const { data: recentUploads, isLoading: uploadsLoading } = useQuery({
-    queryKey: ["/api/uploads", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id, limit: 5 }],
-    enabled: !!user && selectedView !== "all",
+    queryKey: ["/api/uploads", typeof selectedView === 'number' ? selectedView : currentDivision?.id],
+    enabled: !!user && selectedView !== "all" && (typeof selectedView === 'number' || currentDivision?.id),
     retry: false,
   });
 
   const { data: categories, isLoading: categoriesLoading } = useQuery({
-    queryKey: ["/api/contact-categories", { divisionId: typeof selectedView === 'number' ? selectedView : currentDivision?.id }],
-    enabled: !!user && selectedView !== "all",
+    queryKey: ["/api/contact-categories", typeof selectedView === 'number' ? selectedView : currentDivision?.id],
+    enabled: !!user && selectedView !== "all" && (typeof selectedView === 'number' || currentDivision?.id),
     retry: false,
   });
 
