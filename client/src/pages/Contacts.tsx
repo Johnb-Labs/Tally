@@ -229,6 +229,7 @@ export default function Contacts() {
                         variant={isSelectMode ? "destructive" : "outline"}
                         size="sm"
                         onClick={toggleSelectMode}
+                        className="ml-[17px] mr-[17px]"
                       >
                         {isSelectMode ? (
                           <>
