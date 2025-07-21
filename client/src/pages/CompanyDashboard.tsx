@@ -344,7 +344,7 @@ export default function CompanyDashboard() {
               <CardTitle>Division Summary</CardTitle>
               <CardDescription>Detailed information for all divisions</CardDescription>
             </div>
-            <Badge variant="outline" className="text-white">All Divisions</Badge>
+            
           </CardHeader>
           <CardContent className="space-y-4">
             {companyStats.divisionStats.map((division) => (
