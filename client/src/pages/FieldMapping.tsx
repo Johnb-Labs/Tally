@@ -175,7 +175,7 @@ export default function FieldMapping() {
     } as const;
     
     return (
-      <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
+      <Badge variant={variants[status as keyof typeof variants] || 'outline'} className="text-[#ffffff]">
         {status}
       </Badge>
     );
