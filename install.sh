@@ -38,25 +38,27 @@ print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Function to check if running as root
-check_root() {
-    if [[ $EUID -eq 0 ]]; then
-        print_error "This script should not be run as root for security reasons."
-        print_status "Please run as a regular user with sudo privileges."
+# Function to check if running with sufficient privileges
+check_privileges() {
+    if [[ $EUID -ne 0 ]] && ! sudo -n true 2>/dev/null; then
+        print_error "This script requires root privileges or sudo access."
+        print_status "Please run as root or with sudo privileges: sudo ./install.sh"
         exit 1
     fi
     
-    if ! sudo -n true 2>/dev/null; then
-        print_error "This script requires sudo privileges."
-        print_status "Please ensure your user has sudo access."
-        exit 1
+    if [[ $EUID -eq 0 ]]; then
+        print_status "Running as root user"
+        SUDO_CMD=""
+    else
+        print_status "Running with sudo privileges"
+        SUDO_CMD="sudo"
     fi
 }
 
 # Function to update system packages
 update_system() {
     print_status "Updating system packages..."
-    sudo apt update && sudo apt upgrade -y
+    ${SUDO_CMD} apt update && ${SUDO_CMD} apt upgrade -y
     print_success "System packages updated"
 }
 
@@ -65,8 +67,8 @@ install_nodejs() {
     print_status "Installing Node.js ${NODE_VERSION}..."
     
     # Install Node.js repository
-    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | sudo -E bash -
-    sudo apt-get install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | ${SUDO_CMD} -E bash -
+    ${SUDO_CMD} apt-get install -y nodejs
     
     # Verify installation
     node_version=$(node --version)
@@ -79,9 +81,9 @@ install_postgresql() {
     print_status "Installing PostgreSQL ${POSTGRES_VERSION}..."
     
     # Install PostgreSQL
-    sudo apt install -y postgresql postgresql-contrib
-    sudo systemctl start postgresql
-    sudo systemctl enable postgresql
+    ${SUDO_CMD} apt install -y postgresql postgresql-contrib
+    ${SUDO_CMD} systemctl start postgresql
+    ${SUDO_CMD} systemctl enable postgresql
     
     print_success "PostgreSQL installed and started"
 }
@@ -94,9 +96,9 @@ setup_database() {
     DB_PASSWORD=$(openssl rand -base64 32)
     
     # Create database and user
-    sudo -u postgres psql -c "CREATE USER ${APP_USER} WITH PASSWORD '${DB_PASSWORD}';"
-    sudo -u postgres psql -c "CREATE DATABASE ${APP_NAME} OWNER ${APP_USER};"
-    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ${APP_NAME} TO ${APP_USER};"
+    ${SUDO_CMD} -u postgres psql -c "CREATE USER ${APP_USER} WITH PASSWORD '${DB_PASSWORD}';"
+    ${SUDO_CMD} -u postgres psql -c "CREATE DATABASE ${APP_NAME} OWNER ${APP_USER};"
+    ${SUDO_CMD} -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ${APP_NAME} TO ${APP_USER};"
     
     # Save database credentials
     cat > /tmp/database_config.txt << EOF
@@ -119,9 +121,9 @@ EOF
 install_nginx() {
     print_status "Installing and configuring Nginx..."
     
-    sudo apt install -y nginx
-    sudo systemctl start nginx
-    sudo systemctl enable nginx
+    ${SUDO_CMD} apt install -y nginx
+    ${SUDO_CMD} systemctl start nginx
+    ${SUDO_CMD} systemctl enable nginx
     
     print_success "Nginx installed and started"
 }
@@ -132,7 +134,7 @@ create_app_user() {
     
     # Create system user for the application
     if ! id "$APP_USER" &>/dev/null; then
-        sudo useradd --system --home-dir $APP_DIR --shell /bin/bash $APP_USER
+        ${SUDO_CMD} useradd --system --home-dir $APP_DIR --shell /bin/bash $APP_USER
         print_success "User $APP_USER created"
     else
         print_warning "User $APP_USER already exists"
@@ -144,8 +146,8 @@ setup_app_directory() {
     print_status "Setting up application directory..."
     
     # Create application directory
-    sudo mkdir -p $APP_DIR
-    sudo chown $APP_USER:$APP_USER $APP_DIR
+    ${SUDO_CMD} mkdir -p $APP_DIR
+    ${SUDO_CMD} chown $APP_USER:$APP_USER $APP_DIR
     
     print_success "Application directory created at $APP_DIR"
 }
@@ -154,10 +156,10 @@ setup_app_directory() {
 install_pm2() {
     print_status "Installing PM2 for process management..."
     
-    sudo npm install -g pm2
+    ${SUDO_CMD} npm install -g pm2
     
     # Setup PM2 to start on boot
-    sudo pm2 startup systemd -u $APP_USER --hp $APP_DIR
+    ${SUDO_CMD} pm2 startup systemd -u $APP_USER --hp $APP_DIR
     
     print_success "PM2 installed and configured"
 }
@@ -167,7 +169,7 @@ configure_nginx() {
     print_status "Configuring Nginx..."
     
     # Create Nginx configuration
-    sudo tee $NGINX_CONF > /dev/null << 'EOF'
+    ${SUDO_CMD} tee $NGINX_CONF > /dev/null << 'EOF'
 server {
     listen 80;
     server_name _;  # Replace with your domain
@@ -215,12 +217,12 @@ server {
 EOF
     
     # Enable the site
-    sudo ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
-    sudo rm -f /etc/nginx/sites-enabled/default
+    ${SUDO_CMD} ln -sf $NGINX_CONF /etc/nginx/sites-enabled/
+    ${SUDO_CMD} rm -f /etc/nginx/sites-enabled/default
     
     # Test Nginx configuration
-    sudo nginx -t
-    sudo systemctl reload nginx
+    ${SUDO_CMD} nginx -t
+    ${SUDO_CMD} systemctl reload nginx
     
     print_success "Nginx configured and reloaded"
 }
@@ -230,14 +232,14 @@ setup_firewall() {
     print_status "Configuring UFW firewall..."
     
     # Enable UFW if not already enabled
-    sudo ufw --force enable
+    ${SUDO_CMD} ufw --force enable
     
     # Allow SSH, HTTP, and HTTPS
-    sudo ufw allow ssh
-    sudo ufw allow 'Nginx Full'
+    ${SUDO_CMD} ufw allow ssh
+    ${SUDO_CMD} ufw allow 'Nginx Full'
     
     # Show firewall status
-    sudo ufw status verbose
+    ${SUDO_CMD} ufw status verbose
     
     print_success "Firewall configured"
 }
@@ -246,7 +248,7 @@ setup_firewall() {
 create_systemd_service() {
     print_status "Creating systemd service as backup..."
     
-    sudo tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << EOF
+    ${SUDO_CMD} tee /etc/systemd/system/${SERVICE_NAME}.service > /dev/null << EOF
 [Unit]
 Description=Tally Contact Management System
 After=network.target postgresql.service
@@ -273,7 +275,7 @@ ReadWritePaths=${APP_DIR}
 WantedBy=multi-user.target
 EOF
     
-    sudo systemctl daemon-reload
+    ${SUDO_CMD} systemctl daemon-reload
     
     print_success "Systemd service created (backup to PM2)"
 }
@@ -285,17 +287,17 @@ install_ssl() {
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         print_status "Installing Certbot for SSL certificates..."
         
-        sudo apt install -y certbot python3-certbot-nginx
+        ${SUDO_CMD} apt install -y certbot python3-certbot-nginx
         
         read -p "Enter your domain name (e.g., tally.yourdomain.com): " domain_name
         
         if [[ -n "$domain_name" ]]; then
             # Update Nginx config with domain
-            sudo sed -i "s/server_name _;/server_name $domain_name;/" $NGINX_CONF
-            sudo systemctl reload nginx
+            ${SUDO_CMD} sed -i "s/server_name _;/server_name $domain_name;/" $NGINX_CONF
+            ${SUDO_CMD} systemctl reload nginx
             
             # Get SSL certificate
-            sudo certbot --nginx -d $domain_name --non-interactive --agree-tos --email admin@$domain_name
+            ${SUDO_CMD} certbot --nginx -d $domain_name --non-interactive --agree-tos --email admin@$domain_name
             
             print_success "SSL certificate installed for $domain_name"
         else
@@ -308,7 +310,7 @@ install_ssl() {
 create_deployment_script() {
     print_status "Creating deployment script..."
     
-    sudo tee ${APP_DIR}/deploy.sh > /dev/null << 'EOF'
+    ${SUDO_CMD} tee ${APP_DIR}/deploy.sh > /dev/null << 'EOF'
 #!/bin/bash
 
 # Tally Deployment Script
@@ -352,8 +354,8 @@ sudo systemctl reload nginx
 print_success "Deployment completed successfully!"
 EOF
     
-    sudo chmod +x ${APP_DIR}/deploy.sh
-    sudo chown $APP_USER:$APP_USER ${APP_DIR}/deploy.sh
+    ${SUDO_CMD} chmod +x ${APP_DIR}/deploy.sh
+    ${SUDO_CMD} chown $APP_USER:$APP_USER ${APP_DIR}/deploy.sh
     
     print_success "Deployment script created"
 }
@@ -362,7 +364,7 @@ EOF
 create_pm2_config() {
     print_status "Creating PM2 configuration..."
     
-    sudo -u $APP_USER tee ${APP_DIR}/ecosystem.config.js > /dev/null << 'EOF'
+    ${SUDO_CMD} -u $APP_USER tee ${APP_DIR}/ecosystem.config.js > /dev/null << 'EOF'
 module.exports = {
   apps: [{
     name: 'tally',
@@ -385,7 +387,7 @@ module.exports = {
 EOF
     
     # Create logs directory
-    sudo -u $APP_USER mkdir -p ${APP_DIR}/logs
+    ${SUDO_CMD} -u $APP_USER mkdir -p ${APP_DIR}/logs
     
     print_success "PM2 configuration created"
 }
@@ -394,7 +396,7 @@ EOF
 setup_log_rotation() {
     print_status "Setting up log rotation..."
     
-    sudo tee /etc/logrotate.d/tally > /dev/null << EOF
+    ${SUDO_CMD} tee /etc/logrotate.d/tally > /dev/null << EOF
 ${APP_DIR}/logs/*.log {
     daily
     missingok
@@ -415,7 +417,7 @@ EOF
 create_backup_script() {
     print_status "Creating backup script..."
     
-    sudo tee /usr/local/bin/tally-backup.sh > /dev/null << 'EOF'
+    ${SUDO_CMD} tee /usr/local/bin/tally-backup.sh > /dev/null << 'EOF'
 #!/bin/bash
 
 # Tally Backup Script
@@ -440,10 +442,10 @@ find $BACKUP_DIR -type f -mtime +7 -delete
 echo "Backup completed: $DATE"
 EOF
     
-    sudo chmod +x /usr/local/bin/tally-backup.sh
+    ${SUDO_CMD} chmod +x /usr/local/bin/tally-backup.sh
     
     # Add to crontab for daily backups
-    (sudo crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/tally-backup.sh") | sudo crontab -
+    (${SUDO_CMD} crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/tally-backup.sh") | ${SUDO_CMD} crontab -
     
     print_success "Backup script created and scheduled"
 }
@@ -470,8 +472,8 @@ show_final_instructions() {
     echo "- Backup script: /usr/local/bin/tally-backup.sh"
     echo
     print_status "Services:"
-    echo "- Nginx: sudo systemctl {start|stop|restart|status} nginx"
-    echo "- PostgreSQL: sudo systemctl {start|stop|restart|status} postgresql"
+    echo "- Nginx: ${SUDO_CMD} systemctl {start|stop|restart|status} nginx"
+    echo "- PostgreSQL: ${SUDO_CMD} systemctl {start|stop|restart|status} postgresql"
     echo "- Application: pm2 {start|stop|restart|status} tally"
     echo
     print_warning "Don't forget to:"
@@ -493,7 +495,7 @@ main() {
     echo
     
     # Run installation steps
-    check_root
+    check_privileges
     update_system
     install_nodejs
     install_postgresql
