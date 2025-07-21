@@ -31,7 +31,7 @@ if [[ -f "package.json" && -d "client" && -d "server" ]]; then
     print_status "Development environment detected"
     
     print_status "Installing dependencies..."
-    npm install
+    apt install npm
     
     print_status "Building application..."
     npm run build
