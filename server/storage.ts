@@ -551,6 +551,7 @@ export class DatabaseStorage implements IStorage {
     totalUploads: number;
     totalEmails: number;
     totalPhones: number;
+    totalAddresses: number;
     divisionStats: {
       divisionId: number;
       divisionName: string;
@@ -600,6 +601,16 @@ export class DatabaseStorage implements IStorage {
         eq(contacts.isActive, true),
         isNotNull(contacts.phone),
         ne(contacts.phone, "")
+      ));
+
+    // Get total addresses
+    const [addressesResult] = await db
+      .select({ count: count() })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.address),
+        ne(contacts.address, "")
       ));
 
     // Get division stats with email and phone counts
@@ -715,6 +726,7 @@ export class DatabaseStorage implements IStorage {
       totalUploads: uploadsResult.count,
       totalEmails: emailsResult.count,
       totalPhones: phonesResult.count,
+      totalAddresses: addressesResult.count,
       divisionStats: combinedStats,
     };
   }
