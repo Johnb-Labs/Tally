@@ -239,7 +239,7 @@ export default function CompanyDashboard() {
               <CardTitle>Company Overview</CardTitle>
               <CardDescription>Quick statistics across all divisions</CardDescription>
             </div>
-            <Badge variant="secondary">Executive</Badge>
+            <Badge variant="secondary" className="text-[#ffffff]">Executive</Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
