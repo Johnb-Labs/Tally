@@ -24,7 +24,7 @@ curl -O https://raw.githubusercontent.com/johnb-labs/tally/main/install.sh
 chmod +x install.sh
 
 # Run the installation
-./install.sh
+sudo ./install.sh
 ```
 
 ### 2. Deploy Your Application
@@ -33,17 +33,17 @@ After installation, deploy your Tally application:
 
 ```bash
 # Switch to application directory
-cd /opt/tally
+cd tally
 
 # Clone your repository (replace with your Git URL)
-sudo -u tally git clone https://github.com/yourusername/tally.git .
+sudo -u tally git clone https://github.com/johnb-labs/tally.git .
 
 # Create environment file
 sudo -u tally cp .env.example .env
 sudo -u tally nano .env
 
 # Run deployment script
-./deploy.sh
+sudo ./deploy.sh
 ```
 
 ### 3. Configure Environment Variables
@@ -74,7 +74,7 @@ ISSUER_URL=https://replit.com/oidc
 
 # Application Configuration
 NODE_ENV=production
-PORT=5000
+PORT:80
 ```
 
 ## What the Installation Script Does
