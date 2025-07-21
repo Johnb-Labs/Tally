@@ -79,11 +79,16 @@ export default function FileUploader() {
       
       toast({
         title: "Upload successful",
-        description: `${variables.file.name} has been uploaded successfully.`,
+        description: `${variables.file.name} has been uploaded successfully. Redirecting to field mapping...`,
       });
 
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+      
+      // Redirect to field mapping after successful upload
+      setTimeout(() => {
+        window.location.href = "/field-mapping";
+      }, 1500);
     },
     onError: (error, variables) => {
       const fileId = generateFileId(variables.file);
