@@ -156,7 +156,7 @@ export default function FieldMapping() {
       case 'pending':
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'processing':
-        return <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
+        return <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />;
       case 'completed':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'failed':
@@ -175,7 +175,7 @@ export default function FieldMapping() {
     } as const;
     
     return (
-      <Badge variant={variants[status as keyof typeof variants] || 'outline'} className="text-[#ffffff]">
+      <Badge variant={variants[status as keyof typeof variants] || 'outline'} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary hover:bg-secondary/80 text-[#ffffff]">
         {status}
       </Badge>
     );
