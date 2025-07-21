@@ -292,21 +292,7 @@ export default function CompanyDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Active Divisions</p>
-                  <p className="text-xs text-muted-foreground">Operating units</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-lg font-bold">{companyStats.totalDivisions}</p>
-                <p className="text-xs text-muted-foreground">divisions</p>
-              </div>
-            </div>
+
           </CardContent>
         </Card>
       </div>
