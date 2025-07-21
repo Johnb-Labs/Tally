@@ -771,6 +771,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getContactStats(
         divisionId ? parseInt(divisionId as string) : undefined
       );
+      console.log(`Contact stats for division ${divisionId}:`, JSON.stringify(stats, null, 2));
       res.json(stats);
     } catch (error) {
       console.error("Error fetching contact stats:", error);
