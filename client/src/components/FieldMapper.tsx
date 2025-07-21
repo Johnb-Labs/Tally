@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, FileSpreadsheet, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowLeft, FileSpreadsheet, CheckCircle, AlertTriangle, Zap } from "lucide-react";
 
 interface FieldMapperProps {
   upload: any;
@@ -31,6 +31,22 @@ const DATABASE_FIELDS = [
   { key: 'notes', label: 'Notes', required: false },
 ];
 
+// Common CSV header patterns for automatic mapping
+const FIELD_PATTERNS = {
+  firstName: ['first name', 'firstname', 'first_name', 'fname', 'given name'],
+  lastName: ['last name', 'lastname', 'last_name', 'surname', 'family name', 'lname'],
+  email: ['email', 'email address', 'email_address', 'e-mail', 'mail'],
+  phone: ['phone', 'phone number', 'telephone', 'mobile', 'cell', 'contact number'],
+  company: ['company', 'organization', 'organisation', 'business', 'company name'],
+  jobTitle: ['job title', 'position', 'title', 'role', 'job_title', 'designation'],
+  address: ['address', 'street address', 'address line 1', 'addr'],
+  city: ['city', 'town'],
+  province: ['province', 'state', 'region'],
+  postalCode: ['postal code', 'zip code', 'zipcode', 'zip', 'postcode', 'postal_code'],
+  country: ['country', 'nation'],
+  notes: ['notes', 'comments', 'remarks', 'description', 'memo']
+};
+
 export default function FieldMapper({ upload, onComplete, onCancel, isProcessing }: FieldMapperProps) {
   const { user } = useAuth();
   const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
@@ -45,18 +61,80 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
     enabled: !!user,
   });
 
+  // Auto-mapping function
+  const autoMapFields = (headers: string[]) => {
+    const mapping: Record<string, string> = {};
+    
+    headers.forEach(header => {
+      const normalizedHeader = header.toLowerCase().trim();
+      
+      // Find matching database field
+      for (const [dbField, patterns] of Object.entries(FIELD_PATTERNS)) {
+        if (patterns.some(pattern => normalizedHeader.includes(pattern))) {
+          // Only map if not already mapped to avoid conflicts
+          if (!Object.values(mapping).includes(dbField)) {
+            mapping[header] = dbField;
+            break;
+          }
+        }
+      }
+    });
+    
+    return mapping;
+  };
+
   // Mock sample data parsing - in real app, this would be done server-side
   useEffect(() => {
-    // Simulate parsing first few rows of the file
-    const mockHeaders = ['Name', 'Email Address', 'Phone', 'Company Name', 'Position'];
+    // Simulate parsing first few rows of the file with South African data
+    const mockHeaders = ['First Name', 'Last Name', 'Email Address', 'Phone', 'Company', 'Job Title', 'Address', 'City', 'Province', 'Postal Code', 'Country'];
     const mockData = [
-      { 'Name': 'John Smith', 'Email Address': 'john@example.com', 'Phone': '555-0123', 'Company Name': 'Acme Corp', 'Position': 'Manager' },
-      { 'Name': 'Jane Doe', 'Email Address': 'jane@example.com', 'Phone': '555-0124', 'Company Name': 'Tech Inc', 'Position': 'Developer' },
-      { 'Name': 'Bob Johnson', 'Email Address': 'bob@example.com', 'Phone': '555-0125', 'Company Name': 'Sales Co', 'Position': 'Sales Rep' },
+      { 
+        'First Name': 'Thabo', 
+        'Last Name': 'Mthembu', 
+        'Email Address': 'thabo.mthembu@example.co.za', 
+        'Phone': '+27 11 123 4567', 
+        'Company': 'Standard Bank', 
+        'Job Title': 'Branch Manager',
+        'Address': '123 Sandton Drive',
+        'City': 'Johannesburg',
+        'Province': 'Gauteng',
+        'Postal Code': '2196',
+        'Country': 'South Africa'
+      },
+      { 
+        'First Name': 'Sarah', 
+        'Last Name': 'van der Merwe', 
+        'Email Address': 'sarah.vdm@example.co.za', 
+        'Phone': '+27 21 456 7890', 
+        'Company': 'Shoprite Holdings', 
+        'Job Title': 'Marketing Director',
+        'Address': '456 Main Road',
+        'City': 'Cape Town',
+        'Province': 'Western Cape',
+        'Postal Code': '8001',
+        'Country': 'South Africa'
+      },
+      { 
+        'First Name': 'Sipho', 
+        'Last Name': 'Ndlovu', 
+        'Email Address': 'sipho.ndlovu@example.co.za', 
+        'Phone': '+27 31 789 0123', 
+        'Company': 'Sasol Limited', 
+        'Job Title': 'Operations Manager',
+        'Address': '789 Berea Road',
+        'City': 'Durban',
+        'Province': 'KwaZulu-Natal',
+        'Postal Code': '4001',
+        'Country': 'South Africa'
+      },
     ];
     
     setCsvHeaders(mockHeaders);
     setSampleData(mockData);
+    
+    // Auto-map fields based on header patterns
+    const autoMapping = autoMapFields(mockHeaders);
+    setFieldMapping(autoMapping);
   }, [upload]);
 
   const handleFieldChange = (csvField: string, dbField: string) => {
@@ -223,10 +301,25 @@ export default function FieldMapper({ upload, onComplete, onCancel, isProcessing
       {/* Field Mapping */}
       <Card>
         <CardHeader>
-          <CardTitle>Field Mapping Configuration</CardTitle>
-          <CardDescription>
-            Select which database field each CSV column should map to
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Field Mapping Configuration</CardTitle>
+              <CardDescription>
+                Select which database field each CSV column should map to
+              </CardDescription>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                const autoMapping = autoMapFields(csvHeaders);
+                setFieldMapping(autoMapping);
+              }}
+            >
+              <Zap className="w-4 h-4 mr-2" />
+              Auto Map
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

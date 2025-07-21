@@ -11,6 +11,12 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### Latest Updates (January 21, 2025)
+- ✓ Enhanced field mapping with division selection and auto-mapping
+  - Added division selection dropdown in field mapping process
+  - Users must specify target division before processing uploads
+  - Implemented intelligent auto-mapping based on header patterns
+  - Added all address fields (address, city, province, postal code) to field selection
+  - Created PATCH route for upload processing with division assignment
 - ✓ Localized application for South Africa
   - Updated database schema: 'state' → 'province', 'zipCode' → 'postalCode'
   - Updated all CSV templates with South African contacts and locations
