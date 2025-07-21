@@ -46,6 +46,7 @@ interface CompanyStats {
     recentUploads: number;
     emailCount: number;
     phoneCount: number;
+    addressCount: number;
     description?: string;
   }[];
 }
@@ -365,7 +366,7 @@ export default function CompanyDashboard() {
                   </Badge>
                 </div>
                 
-                <div className="grid grid-cols-3 gap-4 text-sm">
+                <div className="grid grid-cols-4 gap-3 text-sm">
                   <div className="text-center">
                     <p className="font-semibold text-orange-600">{division.emailCount || 0}</p>
                     <p className="text-muted-foreground">Emails</p>
@@ -373,6 +374,10 @@ export default function CompanyDashboard() {
                   <div className="text-center">
                     <p className="font-semibold text-green-600">{division.phoneCount || 0}</p>
                     <p className="text-muted-foreground">Phones</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="font-semibold text-blue-600">{division.addressCount || 0}</p>
+                    <p className="text-muted-foreground">Addresses</p>
                   </div>
                   <div className="text-center">
                     <p className="font-semibold text-purple-600">{division.activeUsers}</p>

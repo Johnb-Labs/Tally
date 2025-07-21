@@ -86,6 +86,9 @@ export interface IStorage {
     total: number;
     withEmail: number;
     withPhone: number;
+    withAddress: number;
+    withCompany: number;
+    withCustomFields: number;
     byCategory: { categoryId: number; categoryName: string; count: number }[];
   }>;
   
@@ -557,6 +560,7 @@ export class DatabaseStorage implements IStorage {
       recentUploads: number;
       emailCount: number;
       phoneCount: number;
+      addressCount: number;
     }[];
   }> {
     // Get total counts
@@ -669,12 +673,27 @@ export class DatabaseStorage implements IStorage {
       ))
       .groupBy(contacts.divisionId);
 
+    // Get address counts per division
+    const addressStats = await db
+      .select({
+        divisionId: contacts.divisionId,
+        addressCount: count(contacts.id),
+      })
+      .from(contacts)
+      .where(and(
+        eq(contacts.isActive, true),
+        isNotNull(contacts.address),
+        ne(contacts.address, "")
+      ))
+      .groupBy(contacts.divisionId);
+
     // Combine stats
     const combinedStats = divisionStats.map(division => {
       const userStat = userStats.find(u => u.divisionId === division.divisionId);
       const uploadStat = uploadStats.find(u => u.divisionId === division.divisionId);
       const emailStat = emailStats.find(e => e.divisionId === division.divisionId);
       const phoneStat = phoneStats.find(p => p.divisionId === division.divisionId);
+      const addressStat = addressStats.find(a => a.divisionId === division.divisionId);
       
       return {
         divisionId: division.divisionId,
@@ -685,6 +704,7 @@ export class DatabaseStorage implements IStorage {
         recentUploads: uploadStat?.recentUploads || 0,
         emailCount: emailStat?.emailCount || 0,
         phoneCount: phoneStat?.phoneCount || 0,
+        addressCount: addressStat?.addressCount || 0,
       };
     });
 

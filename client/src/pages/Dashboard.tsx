@@ -127,10 +127,18 @@ export default function Dashboard() {
     {
       label: "Physical Addresses",
       value: ((contactStats as any).withAddress || 0).toLocaleString(),
-      change: `${Math.round((((contactStats as any).withAddress || 0) / (contactStats as any).total) * 100)}%`,
+      change: `${Math.round((((contactStats as any).withAddress || 0) / ((contactStats as any).total || 1)) * 100)}%`,
       icon: Globe,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
+    },
+    {
+      label: "Company Information",
+      value: ((contactStats as any).withCompany || 0).toLocaleString(),
+      change: `${Math.round((((contactStats as any).withCompany || 0) / ((contactStats as any).total || 1)) * 100)}%`,
+      icon: Building2,
+      color: "text-indigo-600",
+      bgColor: "bg-indigo-100",
     },
   ] : [];
 
