@@ -301,7 +301,7 @@ export default function CompanyDashboard() {
               <CardTitle>Division Breakdown</CardTitle>
               <CardDescription>Contact distribution by division</CardDescription>
             </div>
-            <Badge variant="outline" className="text-white">Company View</Badge>
+            
           </CardHeader>
           <CardContent className="space-y-4">
             {companyStats.divisionStats.length > 0 ? (
