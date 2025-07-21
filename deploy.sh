@@ -26,15 +26,23 @@ print_warning() {
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
+# Ensure we're in the project root
+if [[ ! -f "package.json" ]]; then
+    print_error "package.json not found. Please run this script from the project root directory."
+    exit 1
+fi
+
 # Check if we're in development or production environment
 if [[ -f "package.json" && -d "client" && -d "server" ]]; then
     print_status "Development environment detected"
+    print_status "Working directory: $(pwd)"
     
     print_status "Installing dependencies..."
     npm install
     
     print_status "Building application..."
-    npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+    # Use the npm script which has the correct configuration
+    npm run build
     
     print_status "Running database migrations..."
     npm run db:push
@@ -48,6 +56,7 @@ elif [[ -f "/opt/tally/package.json" ]]; then
     print_status "Production environment detected"
     
     cd /opt/tally
+    print_status "Working directory: $(pwd)"
     
     print_status "Pulling latest code..."
     git pull origin main || print_warning "Git pull failed - continuing with local code"
@@ -56,7 +65,7 @@ elif [[ -f "/opt/tally/package.json" ]]; then
     npm ci --production
     
     print_status "Building application..."
-    npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+    npm run build
     
     print_status "Running database migrations..."
     npm run db:push
