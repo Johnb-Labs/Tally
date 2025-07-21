@@ -60,8 +60,8 @@ export default function Contacts() {
     retry: false,
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["/api/contact-categories"],
+  const { data: divisions } = useQuery({
+    queryKey: ["/api/divisions"],
     enabled: !!user,
     retry: false,
   });
@@ -147,16 +147,16 @@ export default function Contacts() {
     return null; // Will redirect in useEffect
   }
 
-  const getCategoryName = (categoryId: number | null) => {
-    if (!categoryId || !categories) return "Uncategorized";
-    const category = categories.find((c: any) => c.id === categoryId);
-    return category?.name || "Uncategorized";
+  const getDivisionName = (divisionId: number | null) => {
+    if (!divisionId || !divisions) return "No Division";
+    const division = divisions.find((d: any) => d.id === divisionId);
+    return division?.name || "No Division";
   };
 
-  const getCategoryColor = (categoryId: number | null) => {
-    if (!categoryId || !categories) return "#6B7280";
-    const category = categories.find((c: any) => c.id === categoryId);
-    return category?.color || "#6B7280";
+  const getDivisionColor = (divisionId: number | null) => {
+    if (!divisionId || !divisions) return "#6B7280";
+    const division = divisions.find((d: any) => d.id === divisionId);
+    return division?.logoColor || "#6B7280";
   };
 
   const formatDate = (dateString: string | null) => {
@@ -307,7 +307,7 @@ export default function Contacts() {
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
                         <TableHead>Company</TableHead>
-                        <TableHead>Category</TableHead>
+                        <TableHead>Division</TableHead>
                         <TableHead>Added</TableHead>
                         {canDelete && !isSelectMode && (
                           <TableHead className="w-12"></TableHead>
@@ -381,11 +381,12 @@ export default function Contacts() {
                             <Badge 
                               variant="outline"
                               style={{ 
-                                borderColor: getCategoryColor(contact.categoryId),
-                                color: getCategoryColor(contact.categoryId)
+                                borderColor: getDivisionColor(contact.divisionId),
+                                color: getDivisionColor(contact.divisionId)
                               }}
+                              className="text-white ml-[17px] mr-[17px]"
                             >
-                              {getCategoryName(contact.categoryId)}
+                              {getDivisionName(contact.divisionId)}
                             </Badge>
                           </TableCell>
                           
