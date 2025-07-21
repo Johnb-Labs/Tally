@@ -58,7 +58,7 @@ export function DivisionSelector({
     <div className="flex items-center gap-2">
       <Building2 className="h-4 w-4" />
       <Select value={value?.toString()} onValueChange={handleValueChange}>
-        <SelectTrigger className="w-[200px] text-[#ffffff]">
+        <SelectTrigger className="w-[200px] text-[#000000]">
           <SelectValue placeholder="Select division" />
         </SelectTrigger>
         <SelectContent>
