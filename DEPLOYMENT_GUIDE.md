@@ -18,7 +18,7 @@ This guide provides step-by-step instructions for deploying Tally on Ubuntu 24.0
 
 ```bash
 # Download the installation script
-curl -O https://raw.githubusercontent.com/yourusername/tally/main/install.sh
+curl -O https://raw.githubusercontent.com/johnb-labs/tally/main/install.sh
 
 # Make it executable
 chmod +x install.sh
