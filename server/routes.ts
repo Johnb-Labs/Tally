@@ -739,6 +739,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.delete("/api/uploads/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const uploadToDelete = await storage.getUpload(parseInt(id));
+      
+      if (!uploadToDelete) {
+        return res.status(404).json({ message: "Upload not found" });
+      }
+      
+      // Only allow deletion if upload is still pending (not yet processed)
+      if (uploadToDelete.status !== 'pending') {
+        return res.status(400).json({ message: "Cannot delete upload that has been processed" });
+      }
+      
+      await storage.deleteUpload(parseInt(id));
+      
+      await logAudit(
+        req.user.id,
+        'upload_deleted',
+        'upload',
+        id,
+        uploadToDelete,
+        null,
+        uploadToDelete.divisionId ?? undefined,
+        req
+      );
+      
+      res.json({ message: "Upload deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting upload:", error);
+      res.status(500).json({ message: "Failed to delete upload" });
+    }
+  });
+
   // Contact Routes
   app.get("/api/contacts", isAuthenticated, async (req: any, res) => {
     try {

@@ -94,6 +94,38 @@ export default function FieldMapping() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (uploadId: number) => {
+      return await apiRequest('DELETE', `/api/uploads/${uploadId}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "File deleted",
+        description: "The uploaded file has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+      setSelectedUpload(null);
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -159,6 +191,13 @@ export default function FieldMapping() {
     }
   };
 
+  const handleDeleteUpload = (uploadId: number) => {
+    // Show confirmation dialog before deleting
+    if (window.confirm("Are you sure you want to delete this uploaded file? This action cannot be undone.")) {
+      deleteMutation.mutate(uploadId);
+    }
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
@@ -175,6 +214,7 @@ export default function FieldMapping() {
               upload={selectedUpload}
               onComplete={handleFieldMappingComplete}
               onCancel={() => setSelectedUpload(null)}
+              onDelete={handleDeleteUpload}
               isProcessing={processMutation.isPending}
             />
           ) : (

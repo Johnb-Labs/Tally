@@ -324,6 +324,10 @@ export class DatabaseStorage implements IStorage {
     return upload;
   }
 
+  async deleteUpload(id: number): Promise<void> {
+    await db.delete(uploads).where(eq(uploads.id, id));
+  }
+
   async getRecentUploads(divisionId?: number, limit: number = 10): Promise<Upload[]> {
     const whereConditions = [];
     
