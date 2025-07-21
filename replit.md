@@ -10,7 +10,12 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### Latest Updates (January 20, 2025)
+### Latest Updates (January 21, 2025)
+- ✓ Localized application for South Africa
+  - Updated database schema: 'state' → 'province', 'zipCode' → 'postalCode'
+  - Updated all CSV templates with South African contacts and locations
+  - Changed phone number formats to South African standards (+27)
+  - Updated CSV import guide with South African terminology
 - ✓ Created comprehensive USER_GUIDE.md with step-by-step instructions
 - ✓ Added role-specific guides for Admin, Uploader, and User accounts
 - ✓ Included troubleshooting section and general features guide

@@ -16,8 +16,8 @@ This guide explains how to format CSV files for importing contacts into the Tall
 - **Job Title** - Position or role
 - **Address** - Full street address
 - **City** - City name
-- **State** - State or province
-- **Zip Code** - Postal/ZIP code
+- **Province** - Province or state
+- **Postal Code** - Postal/ZIP code
 - **Country** - Country name
 - **Notes** - Additional information or comments
 
@@ -51,23 +51,23 @@ You can also include these additional fields for more comprehensive contact info
 
 ### Basic Headers (Copy these exactly)
 ```
-First Name,Last Name,Email,Phone,Company,Job Title,Address,City,State,Zip Code,Country,Notes
+First Name,Last Name,Email,Phone,Company,Job Title,Address,City,Province,Postal Code,Country,Notes
 ```
 
 ### Extended Headers
 ```
-First Name,Last Name,Email,Phone,Company,Job Title,Address,City,State,Zip Code,Country,Notes,LinkedIn,Website,Department,Industry,Annual Revenue,Employee Count,Preferred Contact Method,Birthday,Last Contacted,Spouse Name
+First Name,Last Name,Email,Phone,Company,Job Title,Address,City,Province,Postal Code,Country,Notes,LinkedIn,Website,Department,Industry,Annual Revenue,Employee Count,Preferred Contact Method,Birthday,Last Contacted,Spouse Name
 ```
 
 ## Data Format Guidelines
 
 ### Phone Numbers
 Accepted formats:
-- (555) 123-4567
-- 555-123-4567
-- 555.123.4567
-- +1-555-123-4567
-- 5551234567
+- +27 11 123 4567 (recommended South African format)
+- +27-11-123-4567
+- 011 123 4567
+- 0711234567
+- +27711234567
 
 ### Email Addresses
 - Must be valid email format

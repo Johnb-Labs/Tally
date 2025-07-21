@@ -1,4 +1,4 @@
-First Name,Last Name,Email,Phone,Company,Job Title,Address,City,State,Zip Code,Country,Notes
-John,Doe,john.doe@email.com,(555) 123-4567,ABC Corporation,Sales Manager,"123 Main St",New York,NY,10001,USA,Important client
-Jane,Smith,jane.smith@company.org,555-987-6543,Tech Solutions Inc,Software Engineer,"456 Oak Ave",San Francisco,CA,94102,USA,Technical contact
-Michael,Johnson,m.johnson@gmail.com,555-246-8135,Johnson Consulting,Consultant,"789 Pine Road",Austin,TX,73301,USA,Marketing specialist
+First Name,Last Name,Email,Phone,Company,Job Title,Address,City,Province,Postal Code,Country,Notes
+Thabo,Mthembu,thabo.mthembu@email.co.za,+27 11 123 4567,Johannesburg Mining Corp,Operations Manager,"15 Commissioner Street",Johannesburg,Gauteng,2001,South Africa,Important client
+Nomsa,van der Merwe,nomsa.vdmerwe@techsol.co.za,+27 21 987 6543,Cape Tech Solutions,Software Developer,"45 Long Street",Cape Town,Western Cape,8001,South Africa,Technical contact
+Pieter,Botha,p.botha@consulting.co.za,+27 82 246 8135,Botha Business Consulting,Managing Director,"123 Church Street",Pretoria,Gauteng,0002,South Africa,BEE compliance specialist

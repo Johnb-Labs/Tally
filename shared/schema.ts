@@ -147,8 +147,8 @@ export const contacts = pgTable("contacts", {
   jobTitle: varchar("job_title", { length: 255 }),
   address: text("address"),
   city: varchar("city", { length: 100 }),
-  state: varchar("state", { length: 100 }),
-  zipCode: varchar("zip_code", { length: 20 }),
+  province: varchar("province", { length: 100 }),
+  postalCode: varchar("postal_code", { length: 20 }),
   country: varchar("country", { length: 100 }),
   notes: text("notes"),
   customFields: jsonb("custom_fields"), // flexible additional fields
