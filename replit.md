@@ -11,13 +11,6 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### Latest Updates (January 21, 2025)
-- ✓ Contact deletion functionality implemented with role-based permissions
-  - Added individual delete buttons for each contact row (admin/uploader only)
-  - Implemented bulk selection with master and individual checkboxes
-  - Created "Select/Cancel" toggle for bulk operations mode
-  - Built bulk delete operation with smart confirmation dialogs
-  - Applied consistent badge styling with white text and margin classes
-  - Changed "Category" column to "Division" throughout contact directory
 - ✓ Enhanced field mapping with division selection and auto-mapping
   - Added division selection dropdown in field mapping process
   - Users must specify target division before processing uploads

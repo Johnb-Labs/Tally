@@ -1,7 +1,7 @@
 # CSV Import Guide for Tally Contact Management
 
 ## Overview
-This guide explains how to format CSV files for importing contacts into the Tally system. Our system features intelligent auto-mapping, division-based organization, and supports South African business formats. You can import contacts using Excel (.xlsx), Excel 97-2003 (.xls), or CSV (.csv) files.
+This guide explains how to format CSV files for importing contacts into the Tally system. You can import contacts using Excel (.xlsx), Excel 97-2003 (.xls), or CSV (.csv) files.
 
 ## Available Fields
 
@@ -100,22 +100,19 @@ Always use double quotes around text containing commas:
    - Save as CSV, XLSX, or XLS
 
 2. **Upload File**
-   - Go to Upload page in Tally (under Data Management)
-   - **Select target division** from dropdown (required)
-   - Select your file and upload
-   - Automatic redirect to field mapping
+   - Go to Upload page in Tally
+   - Select your file
+   - Click "Upload and Preview"
 
-3. **Map Fields (Intelligent Auto-Mapping)**
-   - System automatically detects and suggests common field mappings
-   - Review suggested mappings for accuracy
-   - Adjust field mappings using dropdown selectors
-   - Division is pre-selected from upload step
+3. **Map Fields**
+   - System will automatically detect common fields
+   - Review and adjust field mappings as needed
    - Map custom fields to appropriate columns
 
 4. **Import Data**
-   - Review the mappings
-   - Click "Process" to import contacts
-   - Monitor import progress with animated indicators
+   - Review the preview
+   - Click "Import Contacts"
+   - Monitor import progress
 
 ## Tips for Success
 
@@ -144,24 +141,13 @@ If your organization uses custom fields:
 3. Map them during the import process
 4. Custom field data will be stored as additional contact information
 
-## Divisions
+## Categories
 
-Contacts are organized by divisions (not categories):
-1. Select target division during file upload step
-2. All contacts in the file will be assigned to the selected division
-3. Divisions represent organizational units with custom branding
-4. Contact list displays division assignments with color coding
-
-## Contact Management (Post-Import)
-
-After importing contacts, you can:
-1. **View**: Browse contacts in "Contacts" section showing division assignments
-2. **Search**: Use real-time search across names, emails, phones, companies
-3. **Delete** (Admin/Uploader roles only):
-   - Individual deletion using trash icon next to each contact
-   - Bulk operations using "Select" button and checkboxes
-   - Confirmation dialogs prevent accidental deletions
-   - Soft deletion preserves data integrity
+To assign contacts to specific categories:
+1. Include a "Category" column in your CSV
+2. Use existing category names from your system
+3. New categories will be created automatically if they don't exist
+4. Leave blank for uncategorized contacts
 
 ## Support
 

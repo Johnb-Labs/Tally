@@ -79,10 +79,7 @@ export interface IStorage {
   
   // Contact operations
   createContact(contact: InsertContact): Promise<Contact>;
-  getContact(id: number): Promise<Contact | undefined>;
   updateContact(id: number, updates: Partial<Contact>): Promise<Contact>;
-  deleteContact(id: number): Promise<void>;
-  bulkDeleteContacts(ids: number[]): Promise<number>;
   getContacts(divisionId?: number, limit?: number, offset?: number): Promise<Contact[]>;
   searchContacts(query: string, divisionId?: number): Promise<Contact[]>;
   getContactStats(divisionId?: number): Promise<{
@@ -327,10 +324,6 @@ export class DatabaseStorage implements IStorage {
     return upload;
   }
 
-  async deleteUpload(id: number): Promise<void> {
-    await db.delete(uploads).where(eq(uploads.id, id));
-  }
-
   async getRecentUploads(divisionId?: number, limit: number = 10): Promise<Upload[]> {
     const whereConditions = [];
     
@@ -350,29 +343,6 @@ export class DatabaseStorage implements IStorage {
   async createContact(contact: InsertContact): Promise<Contact> {
     const [newContact] = await db.insert(contacts).values(contact).returning();
     return newContact;
-  }
-
-  async getContact(id: number): Promise<Contact | undefined> {
-    const [contact] = await db
-      .select()
-      .from(contacts)
-      .where(and(eq(contacts.id, id), eq(contacts.isActive, true)));
-    return contact;
-  }
-
-  async deleteContact(id: number): Promise<void> {
-    await db
-      .update(contacts)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(eq(contacts.id, id));
-  }
-
-  async bulkDeleteContacts(ids: number[]): Promise<number> {
-    const result = await db
-      .update(contacts)
-      .set({ isActive: false, updatedAt: new Date() })
-      .where(inArray(contacts.id, ids));
-    return result.rowCount || 0;
   }
 
   async updateContact(id: number, updates: Partial<Contact>): Promise<Contact> {
@@ -581,7 +551,6 @@ export class DatabaseStorage implements IStorage {
     totalUploads: number;
     totalEmails: number;
     totalPhones: number;
-    totalAddresses: number;
     divisionStats: {
       divisionId: number;
       divisionName: string;
@@ -631,16 +600,6 @@ export class DatabaseStorage implements IStorage {
         eq(contacts.isActive, true),
         isNotNull(contacts.phone),
         ne(contacts.phone, "")
-      ));
-
-    // Get total addresses
-    const [addressesResult] = await db
-      .select({ count: count() })
-      .from(contacts)
-      .where(and(
-        eq(contacts.isActive, true),
-        isNotNull(contacts.address),
-        ne(contacts.address, "")
       ));
 
     // Get division stats with email and phone counts
@@ -756,7 +715,6 @@ export class DatabaseStorage implements IStorage {
       totalUploads: uploadsResult.count,
       totalEmails: emailsResult.count,
       totalPhones: phonesResult.count,
-      totalAddresses: addressesResult.count,
       divisionStats: combinedStats,
     };
   }

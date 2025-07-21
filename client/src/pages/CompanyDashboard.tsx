@@ -10,7 +10,6 @@ import {
   Activity,
   Mail,
   Phone,
-  MapPin,
 } from "lucide-react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -39,7 +38,6 @@ interface CompanyStats {
   totalUploads: number;
   totalEmails: number;
   totalPhones: number;
-  totalAddresses: number;
   divisionStats: {
     divisionId: number;
     divisionName: string;
@@ -186,10 +184,10 @@ export default function CompanyDashboard() {
       bgColor: "bg-green-100",
     },
     {
-      label: "Physical Addresses",
-      value: (companyStats.totalAddresses || 0).toLocaleString(),
-      change: "Complete",
-      icon: MapPin,
+      label: "Active Divisions",
+      value: companyStats.totalDivisions.toString(),
+      change: "Operating",
+      icon: Building2,
       color: "text-purple-600",
       bgColor: "bg-purple-100",
     },
@@ -241,7 +239,7 @@ export default function CompanyDashboard() {
               <CardTitle>Company Overview</CardTitle>
               <CardDescription>Quick statistics across all divisions</CardDescription>
             </div>
-            <Badge variant="secondary" className="text-[#ffffff]">Executive</Badge>
+            <Badge variant="secondary" className="text-[#000000]">Executive</Badge>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -291,8 +289,6 @@ export default function CompanyDashboard() {
                 <p className="text-xs text-muted-foreground">users</p>
               </div>
             </div>
-
-
           </CardContent>
         </Card>
       </div>
@@ -365,7 +361,7 @@ export default function CompanyDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-[#ffffff]">
+                  <Badge variant="secondary">
                     {division.contactCount.toLocaleString()} contacts
                   </Badge>
                 </div>

@@ -94,38 +94,6 @@ export default function FieldMapping() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (uploadId: number) => {
-      return await apiRequest('DELETE', `/api/uploads/${uploadId}`);
-    },
-    onSuccess: () => {
-      toast({
-        title: "File deleted",
-        description: "The uploaded file has been deleted successfully.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
-      setSelectedUpload(null);
-    },
-    onError: (error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-      toast({
-        title: "Delete failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -156,7 +124,7 @@ export default function FieldMapping() {
       case 'pending':
         return <Clock className="w-4 h-4 text-yellow-500" />;
       case 'processing':
-        return <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />;
+        return <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />;
       case 'completed':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
       case 'failed':
@@ -175,7 +143,7 @@ export default function FieldMapping() {
     } as const;
     
     return (
-      <Badge variant={variants[status as keyof typeof variants] || 'outline'} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary hover:bg-secondary/80 text-[#ffffff]">
+      <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
         {status}
       </Badge>
     );
@@ -188,13 +156,6 @@ export default function FieldMapping() {
         fieldMapping: data.fieldMapping,
         divisionId: data.divisionId,
       });
-    }
-  };
-
-  const handleDeleteUpload = (uploadId: number) => {
-    // Show confirmation dialog before deleting
-    if (window.confirm("Are you sure you want to delete this uploaded file? This action cannot be undone.")) {
-      deleteMutation.mutate(uploadId);
     }
   };
 
@@ -214,7 +175,6 @@ export default function FieldMapping() {
               upload={selectedUpload}
               onComplete={handleFieldMappingComplete}
               onCancel={() => setSelectedUpload(null)}
-              onDelete={handleDeleteUpload}
               isProcessing={processMutation.isPending}
             />
           ) : (

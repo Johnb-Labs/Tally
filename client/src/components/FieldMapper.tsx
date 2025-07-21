@@ -7,13 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, FileSpreadsheet, CheckCircle, AlertTriangle, Zap, Trash2 } from "lucide-react";
+import { ArrowLeft, FileSpreadsheet, CheckCircle, AlertTriangle, Zap } from "lucide-react";
 
 interface FieldMapperProps {
   upload: any;
   onComplete: (fieldMapping: any) => void;
   onCancel: () => void;
-  onDelete?: (uploadId: number) => void;
   isProcessing: boolean;
 }
 
@@ -48,7 +47,7 @@ const FIELD_PATTERNS = {
   notes: ['notes', 'comments', 'remarks', 'description', 'memo']
 };
 
-export default function FieldMapper({ upload, onComplete, onCancel, onDelete, isProcessing }: FieldMapperProps) {
+export default function FieldMapper({ upload, onComplete, onCancel, isProcessing }: FieldMapperProps) {
   const { user } = useAuth();
   const [fieldMapping, setFieldMapping] = useState<Record<string, string>>({});
   const [sampleData, setSampleData] = useState<any[]>([]);
@@ -239,30 +238,16 @@ export default function FieldMapper({ upload, onComplete, onCancel, onDelete, is
                   )}
                 </p>
               </div>
-              <div className="flex items-center space-x-2">
-                {onDelete && (
-                  <Button 
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onDelete(upload.id)}
-                    disabled={isProcessing}
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete File
-                  </Button>
-                )}
-                <Button 
-                  onClick={handleComplete}
-                  disabled={!status.requiredMapped || !selectedDivision || isProcessing}
-                  className="min-w-24"
-                >
-                  {isProcessing ? (
-                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
-                  ) : null}
-                  {isProcessing ? 'Processing...' : 'Process File'}
-                </Button>
-              </div>
+              <Button 
+                onClick={handleComplete}
+                disabled={!status.requiredMapped || !selectedDivision || isProcessing}
+                className="min-w-24"
+              >
+                {isProcessing ? (
+                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                ) : null}
+                {isProcessing ? 'Processing...' : 'Process File'}
+              </Button>
             </div>
           </div>
         </CardHeader>

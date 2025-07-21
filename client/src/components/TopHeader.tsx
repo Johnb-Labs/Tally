@@ -1,6 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useBrand } from "@/contexts/BrandContext";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { 
   Select,
@@ -30,62 +29,9 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
     setCurrentDivision(division || null);
   };
 
-  // Fetch contact stats for export
-  const { data: contactStats } = useQuery({
-    queryKey: ["/api/contacts/stats", currentDivision?.id],
-    enabled: !!user,
-  });
-
   const handleExportReport = () => {
-    if (!contactStats || !currentDivision) {
-      // Generate general report if no division is selected
-      const reportData = [
-        ['Contact Management Report'],
-        ['Generated:', new Date().toLocaleDateString()],
-        [''],
-        ['General Information'],
-        ['User:', user?.firstName || 'Unknown'],
-        ['Export Date:', new Date().toISOString().split('T')[0]],
-        [''],
-        ['Note: Select a division to view detailed contact statistics']
-      ];
-
-      const csv = reportData.map(row => row.join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `general-report-${new Date().toISOString().split('T')[0]}.csv`;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      return;
-    }
-
-    const stats = contactStats as any;
-    const reportData = [
-      ['Division Contact Report'],
-      ['Division:', currentDivision.name],
-      ['Generated:', new Date().toLocaleDateString()],
-      [''],
-      ['Contact Summary'],
-      ['Total Contacts:', stats.total.toLocaleString()],
-      ['Email Addresses:', `${stats.withEmail.toLocaleString()} (${Math.round((stats.withEmail / stats.total) * 100)}%)`],
-      ['Phone Numbers:', `${stats.withPhone.toLocaleString()} (${Math.round((stats.withPhone / stats.total) * 100)}%)`],
-      ['Physical Addresses:', `${(stats.withAddress || 0).toLocaleString()} (${Math.round(((stats.withAddress || 0) / stats.total) * 100)}%)`],
-      ['Company Information:', `${(stats.withCompany || 0).toLocaleString()} (${Math.round(((stats.withCompany || 0) / stats.total) * 100)}%)`],
-      [''],
-      ['Category Breakdown'],
-      ...((stats.byCategory || []).map((cat: any) => [cat.categoryName || 'Uncategorized', cat.count.toLocaleString()]))
-    ];
-
-    const csv = reportData.map(row => row.join(',')).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${currentDivision.name}-contact-report-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
+    // TODO: Implement report export functionality
+    console.log("Export report clicked");
   };
 
   return (

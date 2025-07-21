@@ -75,35 +75,7 @@ ISSUER_URL=https://replit.com/oidc
 # Application Configuration
 NODE_ENV=production
 PORT=5000
-
-# Feature Configuration
-ENABLE_PUBLIC_REGISTRATION=false  # Admin-only user creation
-ENABLE_CONTACT_DELETION=true      # Role-based contact deletion
-ENABLE_BULK_OPERATIONS=true       # Bulk selection and operations
-UPLOAD_MAX_SIZE=10485760          # 10MB file upload limit
 ```
-
-## Latest Features (January 2025)
-
-### Contact Management Enhancements
-- **Role-Based Deletion**: Admin and uploader roles can delete contacts
-- **Bulk Operations**: Select multiple contacts for batch deletion
-- **Smart Confirmations**: Contextual deletion confirmations show contact counts
-- **Soft Deletion**: Maintains data integrity with isActive flag
-- **Division-Based Organization**: Contacts organized by divisions, not categories
-
-### Upload Process Improvements
-- **Automatic Field Mapping**: Intelligent suggestions for column mappings
-- **Division Selection**: Required division assignment during upload
-- **Auto-Navigation**: Seamless redirect from upload to field mapping
-- **Processing Indicators**: Animated status icons for user feedback
-- **South African Localization**: Optimized for SA address formats
-
-### Security Features
-- **Admin-Only Registration**: Public registration disabled for security
-- **Permission Validation**: API endpoints verify user roles
-- **Audit Logging**: Complete activity tracking for compliance
-- **Session Management**: Secure PostgreSQL-backed sessions
 
 ## What the Installation Script Does
 
@@ -123,9 +95,6 @@ UPLOAD_MAX_SIZE=10485760          # 10MB file upload limit
 - Sets up proper file permissions
 - Implements security headers in Nginx
 - Isolates application processes
-- Disables public registration (admin-only user creation)
-- Role-based access control for contact deletion
-- Soft deletion preserves data integrity
 
 ### Directory Structure
 
