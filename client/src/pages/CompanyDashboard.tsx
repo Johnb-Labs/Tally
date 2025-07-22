@@ -361,7 +361,7 @@ export default function CompanyDashboard() {
                       </p>
                     </div>
                   </div>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="text-[#ffffff]">
                     {division.contactCount.toLocaleString()} contacts
                   </Badge>
                 </div>
