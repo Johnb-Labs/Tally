@@ -393,6 +393,28 @@ export class DatabaseStorage implements IStorage {
     return await baseQuery.orderBy(contacts.firstName).limit(100);
   }
 
+  async deleteContact(id: number): Promise<void> {
+    await db
+      .update(contacts)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(contacts.id, id));
+  }
+
+  async deleteContacts(ids: number[]): Promise<void> {
+    await db
+      .update(contacts)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(inArray(contacts.id, ids));
+  }
+
+  async getContact(id: number): Promise<Contact | undefined> {
+    const [contact] = await db
+      .select()
+      .from(contacts)
+      .where(and(eq(contacts.id, id), eq(contacts.isActive, true)));
+    return contact;
+  }
+
   async getContactStats(divisionId?: number): Promise<{
     total: number;
     withEmail: number;
