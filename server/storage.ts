@@ -501,14 +501,14 @@ export class DatabaseStorage implements IStorage {
         or(
           eq(customFieldDefinitions.divisionId, divisionId),
           eq(customFieldDefinitions.isGlobal, true)
-        )
+        ) as any
       );
     }
     
     return await db
       .select()
       .from(customFieldDefinitions)
-      .where(and(...whereConditions))
+      .where(whereConditions.length > 1 ? and(...whereConditions) : whereConditions[0])
       .orderBy(customFieldDefinitions.displayOrder, customFieldDefinitions.name);
   }
 
@@ -720,7 +720,7 @@ export class DatabaseStorage implements IStorage {
       return {
         divisionId: division.divisionId,
         divisionName: division.divisionName,
-        description: division.description,
+        description: division.description || undefined,
         contactCount: division.contactCount,
         activeUsers: userStat?.activeUsers || 0,
         recentUploads: uploadStat?.recentUploads || 0,

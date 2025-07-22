@@ -42,7 +42,7 @@ export default function Contacts() {
   const [selectAll, setSelectAll] = useState(false);
 
   // Check if user can delete contacts (admin or uploader)
-  const canDeleteContacts = user?.role === 'admin' || user?.role === 'uploader';
+  const canDeleteContacts = (user as any)?.role === 'admin' || (user as any)?.role === 'uploader';
 
   // Debounce search query
   useEffect(() => {
@@ -74,8 +74,8 @@ export default function Contacts() {
     retry: false,
   });
 
-  const { data: categories } = useQuery({
-    queryKey: ["/api/contact-categories"],
+  const { data: divisions } = useQuery({
+    queryKey: ["/api/divisions"],
     enabled: !!user,
     retry: false,
   });
@@ -83,9 +83,7 @@ export default function Contacts() {
   // Single contact deletion mutation
   const deleteMutation = useMutation({
     mutationFn: async (contactId: number) => {
-      await apiRequest(`/api/contacts/${contactId}`, {
-        method: "DELETE",
-      });
+      await apiRequest(`/api/contacts/${contactId}`, "DELETE");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
@@ -118,10 +116,7 @@ export default function Contacts() {
   // Bulk deletion mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: async (contactIds: number[]) => {
-      await apiRequest("/api/contacts", {
-        method: "DELETE",
-        body: JSON.stringify({ ids: contactIds }),
-      });
+      await apiRequest("/api/contacts", "DELETE", { ids: contactIds });
     },
     onSuccess: (_, contactIds) => {
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
@@ -163,7 +158,7 @@ export default function Contacts() {
 
   const handleSelectAll = (checked: boolean) => {
     setSelectAll(checked);
-    if (checked && contacts) {
+    if (checked && contacts && Array.isArray(contacts)) {
       setSelectedContacts(contacts.map((contact: any) => contact.id));
     } else {
       setSelectedContacts([]);
@@ -195,16 +190,16 @@ export default function Contacts() {
     return null; // Will redirect in useEffect
   }
 
-  const getCategoryName = (categoryId: number | null) => {
-    if (!categoryId || !categories) return "Uncategorized";
-    const category = categories.find((c: any) => c.id === categoryId);
-    return category?.name || "Uncategorized";
+  const getDivisionName = (divisionId: number | null) => {
+    if (!divisionId || !divisions || !Array.isArray(divisions)) return "No Division";
+    const division = divisions.find((d: any) => d.id === divisionId);
+    return division?.name || "No Division";
   };
 
-  const getCategoryColor = (categoryId: number | null) => {
-    if (!categoryId || !categories) return "#6B7280";
-    const category = categories.find((c: any) => c.id === categoryId);
-    return category?.color || "#6B7280";
+  const getDivisionColor = (divisionId: number | null) => {
+    if (!divisionId || !divisions || !Array.isArray(divisions)) return "#6B7280";
+    const division = divisions.find((d: any) => d.id === divisionId);
+    return division?.primaryColor || "#6B7280";
   };
 
   const formatDate = (dateString: string | null) => {
@@ -229,7 +224,7 @@ export default function Contacts() {
                 <div>
                   <CardTitle>Contact Directory</CardTitle>
                   <CardDescription>
-                    {contacts ? `${contacts.length} contacts found` : "Loading contacts..."}
+                    {contacts && Array.isArray(contacts) ? `${contacts.length} contacts found` : "Loading contacts..."}
                   </CardDescription>
                 </div>
                 
@@ -306,7 +301,7 @@ export default function Contacts() {
                     </div>
                   ))}
                 </div>
-              ) : contacts?.length ? (
+              ) : contacts && Array.isArray(contacts) && contacts.length > 0 ? (
                 <div className="rounded-md border">
                   <Table>
                     <TableHeader>
@@ -323,13 +318,13 @@ export default function Contacts() {
                         <TableHead>Email</TableHead>
                         <TableHead>Phone</TableHead>
                         <TableHead>Company</TableHead>
-                        <TableHead>Category</TableHead>
+                        <TableHead>Division</TableHead>
                         <TableHead>Added</TableHead>
                         {canDeleteContacts && <TableHead className="w-12"></TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {contacts.map((contact: any) => (
+                      {(contacts as any[]).map((contact: any) => (
                         <TableRow key={contact.id}>
                           {canDeleteContacts && (
                             <TableCell>
@@ -397,11 +392,11 @@ export default function Contacts() {
                             <Badge 
                               variant="outline"
                               style={{ 
-                                borderColor: getCategoryColor(contact.categoryId),
-                                color: getCategoryColor(contact.categoryId)
+                                borderColor: getDivisionColor(contact.divisionId),
+                                color: getDivisionColor(contact.divisionId)
                               }}
                             >
-                              {getCategoryName(contact.categoryId)}
+                              {getDivisionName(contact.divisionId)}
                             </Badge>
                           </TableCell>
                           
