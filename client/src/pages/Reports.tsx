@@ -159,10 +159,19 @@ export default function Reports() {
   };
 
   const categoryData = {
-    labels: categories?.map((c: any) => c.name) || ['Customers', 'Prospects', 'Partners'],
+    labels: isCompanyWide 
+      ? (contactStats?.byDivision?.map((d: any) => d.name) || divisions?.map((d: any) => d.name) || ['No Divisions'])
+      : (categories?.map((c: any) => c.name) || ['Customers', 'Prospects', 'Partners']),
     datasets: [{
-      data: contactStats?.byCategory?.map((c: any) => c.count) || [4523, 3124, 2156],
-      backgroundColor: categories?.map((c: any) => c.color) || [colors.primaryColor, colors.accentColor, '#4CAF50'],
+      data: isCompanyWide
+        ? (contactStats?.byDivision?.map((d: any) => d.count) || divisions?.map(() => 0) || [0])
+        : (contactStats?.byCategory?.map((c: any) => c.count) || [4523, 3124, 2156]),
+      backgroundColor: isCompanyWide
+        ? (divisions?.map((d: any, index: number) => {
+            const colorMap = [colors.primaryColor, colors.accentColor, '#4CAF50', '#9C27B0', '#FF9800', '#F44336'];
+            return colorMap[index % colorMap.length];
+          }) || [colors.primaryColor])
+        : (categories?.map((c: any) => c.color) || [colors.primaryColor, colors.accentColor, '#4CAF50']),
       borderWidth: 0,
     }],
   };
@@ -348,8 +357,10 @@ export default function Reports() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Contact Categories</CardTitle>
-                    <CardDescription>Distribution by category type</CardDescription>
+                    <CardTitle>{isCompanyWide ? "Divisions" : "Contact Type"}</CardTitle>
+                    <CardDescription>
+                      {isCompanyWide ? "Distribution across company divisions" : "Distribution by contact type"}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="h-64">
