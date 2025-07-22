@@ -57,6 +57,7 @@ export default function Reports() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState("30days");
   const [reportType, setReportType] = useState("overview");
+  const [selectedDivisionId, setSelectedDivisionId] = useState<string>("company"); // "company" for company-wide
 
   const colors = getEffectiveColors();
 
@@ -75,20 +76,32 @@ export default function Reports() {
     }
   }, [isAuthenticated, authLoading, toast]);
 
+  // Get divisions for selection
+  const { data: divisions } = useQuery({
+    queryKey: ["/api/divisions"],
+    enabled: !!user,
+    retry: false,
+  });
+
+  // Determine which division ID to use for API calls
+  const reportDivisionId = selectedDivisionId === "company" ? undefined : parseInt(selectedDivisionId);
+  const isCompanyWide = selectedDivisionId === "company";
+
+  // Get stats based on selected division
   const { data: contactStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["/api/contacts/stats", { divisionId: currentDivision?.id }],
+    queryKey: isCompanyWide ? ["/api/company-stats"] : ["/api/contacts/stats", { divisionId: reportDivisionId }],
     enabled: !!user,
     retry: false,
   });
 
   const { data: categories } = useQuery({
-    queryKey: ["/api/contact-categories", { divisionId: currentDivision?.id }],
+    queryKey: ["/api/contact-categories", { divisionId: reportDivisionId }],
     enabled: !!user,
     retry: false,
   });
 
   const { data: uploads } = useQuery({
-    queryKey: ["/api/uploads", { divisionId: currentDivision?.id }],
+    queryKey: ["/api/uploads", { divisionId: reportDivisionId }],
     enabled: !!user,
     retry: false,
   });
@@ -146,10 +159,10 @@ export default function Reports() {
   };
 
   const categoryData = {
-    labels: categories?.map(c => c.name) || ['Customers', 'Prospects', 'Partners'],
+    labels: categories?.map((c: any) => c.name) || ['Customers', 'Prospects', 'Partners'],
     datasets: [{
-      data: contactStats?.byCategory.map(c => c.count) || [4523, 3124, 2156],
-      backgroundColor: categories?.map(c => c.color) || [colors.primaryColor, colors.accentColor, '#4CAF50'],
+      data: contactStats?.byCategory?.map((c: any) => c.count) || [4523, 3124, 2156],
+      backgroundColor: categories?.map((c: any) => c.color) || [colors.primaryColor, colors.accentColor, '#4CAF50'],
       borderWidth: 0,
     }],
   };
@@ -165,6 +178,21 @@ export default function Reports() {
 
   const exportActions = (
     <div className="flex items-center space-x-2">
+      {/* Division Selector */}
+      <Select value={selectedDivisionId} onValueChange={setSelectedDivisionId}>
+        <SelectTrigger className="w-48">
+          <SelectValue placeholder="Select division" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="company">Company-wide Reports</SelectItem>
+          {divisions && Array.isArray(divisions) && divisions.map((division: any) => (
+            <SelectItem key={division.id} value={division.id.toString()}>
+              {division.name} Division
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       <Select value={dateRange} onValueChange={setDateRange}>
         <SelectTrigger className="w-32">
           <SelectValue />
@@ -195,8 +223,8 @@ export default function Reports() {
       
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopHeader 
-          title="Reports & Analytics"
-          description="Comprehensive insights into your contact data and activities."
+          title={isCompanyWide ? "Company-wide Reports & Analytics" : `${divisions?.find((d: any) => d.id.toString() === selectedDivisionId)?.name || 'Division'} Reports & Analytics`}
+          description={isCompanyWide ? "Comprehensive insights across all divisions and company data." : `Detailed insights for the ${divisions?.find((d: any) => d.id.toString() === selectedDivisionId)?.name || 'selected'} division.`}
           actions={exportActions}
         />
         
@@ -210,6 +238,20 @@ export default function Reports() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
+              {/* Scope Indicator */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="text-white bg-primary/80">
+                    {isCompanyWide ? "Company-wide View" : `${divisions?.find((d: any) => d.id.toString() === selectedDivisionId)?.name || 'Division'} View`}
+                  </Badge>
+                  {isCompanyWide && (
+                    <span className="text-sm text-muted-foreground">
+                      Showing data across {contactStats?.totalDivisions || 0} divisions
+                    </span>
+                  )}
+                </div>
+              </div>
+
               {/* Key Metrics */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <Card>
@@ -218,7 +260,10 @@ export default function Reports() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Total Contacts</p>
                         <p className="text-3xl font-bold text-foreground">
-                          {contactStats?.total.toLocaleString() || '0'}
+                          {(() => {
+                            const value = isCompanyWide ? contactStats?.totalContacts : contactStats?.total;
+                            return value ? value.toLocaleString() : '0';
+                          })()}
                         </p>
                       </div>
                       <Users className="w-8 h-8 text-primary" />
@@ -232,10 +277,18 @@ export default function Reports() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">With Email</p>
                         <p className="text-3xl font-bold text-foreground">
-                          {contactStats?.withEmail.toLocaleString() || '0'}
+                          {(() => {
+                            const value = isCompanyWide ? contactStats?.totalWithEmail : contactStats?.withEmail;
+                            return value ? value.toLocaleString() : '0';
+                          })()}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {contactStats ? Math.round((contactStats.withEmail / contactStats.total) * 100) : 0}% coverage
+                          {(() => {
+                            if (!contactStats) return '0';
+                            const emailCount = isCompanyWide ? contactStats.totalWithEmail : contactStats.withEmail;
+                            const totalCount = isCompanyWide ? contactStats.totalContacts : contactStats.total;
+                            return emailCount && totalCount ? Math.round((emailCount / totalCount) * 100) : 0;
+                          })()}% coverage
                         </p>
                       </div>
                       <Mail className="w-8 h-8 text-orange-500" />
@@ -249,10 +302,18 @@ export default function Reports() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">With Phone</p>
                         <p className="text-3xl font-bold text-foreground">
-                          {contactStats?.withPhone.toLocaleString() || '0'}
+                          {(() => {
+                            const value = isCompanyWide ? contactStats?.totalWithPhone : contactStats?.withPhone;
+                            return value ? value.toLocaleString() : '0';
+                          })()}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {contactStats ? Math.round((contactStats.withPhone / contactStats.total) * 100) : 0}% coverage
+                          {(() => {
+                            if (!contactStats) return '0';
+                            const phoneCount = isCompanyWide ? contactStats.totalWithPhone : contactStats.withPhone;
+                            const totalCount = isCompanyWide ? contactStats.totalContacts : contactStats.total;
+                            return phoneCount && totalCount ? Math.round((phoneCount / totalCount) * 100) : 0;
+                          })()}% coverage
                         </p>
                       </div>
                       <Phone className="w-8 h-8 text-green-500" />
@@ -266,7 +327,14 @@ export default function Reports() {
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Data Quality</p>
                         <p className="text-3xl font-bold text-foreground">
-                          {contactStats ? Math.round(((contactStats.withEmail + contactStats.withPhone) / (contactStats.total * 2)) * 100) : 0}%
+                          {(() => {
+                            if (!contactStats) return '0%';
+                            const emailCount = isCompanyWide ? contactStats.totalWithEmail : contactStats.withEmail;
+                            const phoneCount = isCompanyWide ? contactStats.totalWithPhone : contactStats.withPhone;
+                            const totalCount = isCompanyWide ? contactStats.totalContacts : contactStats.total;
+                            if (!emailCount || !phoneCount || !totalCount) return '0%';
+                            return Math.round(((emailCount + phoneCount) / (totalCount * 2)) * 100) + '%';
+                          })()}
                         </p>
                         <p className="text-sm text-muted-foreground">Contact completeness</p>
                       </div>
