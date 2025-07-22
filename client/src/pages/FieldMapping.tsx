@@ -11,7 +11,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { FileSpreadsheet, Clock, CheckCircle, AlertCircle, Play } from "lucide-react";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { FileSpreadsheet, Clock, CheckCircle, AlertCircle, Play, Trash2 } from "lucide-react";
 
 export default function FieldMapping() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -94,6 +105,38 @@ export default function FieldMapping() {
     },
   });
 
+  // Delete upload mutation
+  const deleteUploadMutation = useMutation({
+    mutationFn: async (uploadId: number) => {
+      await apiRequest(`/api/uploads/${uploadId}`, "DELETE");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/uploads"] });
+      toast({
+        title: "Success",
+        description: "Upload deleted successfully",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete upload",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -143,7 +186,10 @@ export default function FieldMapping() {
     } as const;
     
     return (
-      <Badge variant={variants[status as keyof typeof variants] || 'outline'}>
+      <Badge 
+        variant={variants[status as keyof typeof variants] || 'outline'}
+        className="text-[#ffffff]"
+      >
         {status}
       </Badge>
     );
@@ -213,6 +259,35 @@ export default function FieldMapping() {
                               <Play className="w-4 h-4 mr-2" />
                               Map Fields
                             </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Upload</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{upload.originalName}"? 
+                                    This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => deleteUploadMutation.mutate(upload.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete Upload
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                       ))}
@@ -272,6 +347,7 @@ export default function FieldMapping() {
                             <TableHead>Status</TableHead>
                             <TableHead>Records</TableHead>
                             <TableHead>Completed</TableHead>
+                            <TableHead className="w-12"></TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -300,6 +376,37 @@ export default function FieldMapping() {
                               </TableCell>
                               <TableCell className="text-muted-foreground">
                                 {upload.completedAt ? new Date(upload.completedAt).toLocaleDateString() : '—'}
+                              </TableCell>
+                              <TableCell>
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Upload</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete "{upload.originalName}"? 
+                                        This will also remove all contacts imported from this file.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => deleteUploadMutation.mutate(upload.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Delete Upload
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               </TableCell>
                             </TableRow>
                           ))}

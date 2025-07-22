@@ -28,7 +28,7 @@ export default function Upload() {
   // Check permissions
   useEffect(() => {
     if (user && !authLoading) {
-      const canUpload = user.role === 'admin' || user.role === 'uploader';
+      const canUpload = (user as any)?.role === 'admin' || (user as any)?.role === 'uploader';
       if (!canUpload) {
         toast({
           title: "Access Denied",
@@ -58,7 +58,7 @@ export default function Upload() {
     return null; // Will redirect in useEffect
   }
 
-  const canUpload = user.role === 'admin' || user.role === 'uploader';
+  const canUpload = (user as any)?.role === 'admin' || (user as any)?.role === 'uploader';
   if (!canUpload) {
     return null; // Will redirect in useEffect
   }

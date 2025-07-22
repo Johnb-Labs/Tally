@@ -287,7 +287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customField.id.toString(),
         null,
         customField,
-        validation.data.divisionId,
+        validation.data.divisionId ?? undefined,
         req
       );
       
@@ -315,7 +315,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id,
         oldField,
         updatedField,
-        updatedField?.divisionId,
+        updatedField?.divisionId ?? undefined,
         req
       );
       
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id,
         fieldToDelete,
         null,
-        fieldToDelete?.divisionId,
+        fieldToDelete?.divisionId ?? undefined,
         req
       );
       
@@ -726,7 +726,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.error('Error completing upload processing:', error);
             await storage.updateUpload(parseInt(id), { 
               status: 'failed', 
-              errorMessage: 'Processing failed: ' + error.message
+              errorMessage: 'Processing failed: ' + (error as Error).message
             });
           }
         }, 3000);
@@ -736,6 +736,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating upload:", error);
       res.status(500).json({ message: "Failed to update upload" });
+    }
+  });
+
+  // Delete upload route (Admin and Uploader only)
+  app.delete("/api/uploads/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+      
+      const { id } = req.params;
+      const uploadToDelete = await storage.getUpload(parseInt(id));
+      
+      if (!uploadToDelete) {
+        return res.status(404).json({ message: "Upload not found" });
+      }
+      
+      await storage.deleteUpload(parseInt(id));
+      
+      await logAudit(
+        req.user.id,
+        'upload_deleted',
+        'upload',
+        id,
+        uploadToDelete,
+        null,
+        uploadToDelete.divisionId ?? undefined,
+        req
+      );
+      
+      res.json({ message: "Upload deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting upload:", error);
+      res.status(500).json({ message: "Failed to delete upload" });
     }
   });
 

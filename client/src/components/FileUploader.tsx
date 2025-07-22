@@ -230,7 +230,7 @@ export default function FileUploader() {
     }
   };
 
-  const userDivisions = user?.divisions || [];
+  const userDivisions = (user as any)?.divisions || [];
   const pendingCount = files.filter(f => f.status === 'pending').length;
   const uploadingCount = files.filter(f => f.status === 'uploading').length;
 
@@ -259,7 +259,7 @@ export default function FileUploader() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">No Division (Global)</SelectItem>
-                    {userDivisions.map((division) => (
+                    {userDivisions.map((division: any) => (
                       <SelectItem key={division.id} value={division.id.toString()}>
                         {division.name}
                       </SelectItem>
@@ -356,11 +356,14 @@ export default function FileUploader() {
                   <div className="flex items-center space-x-2">
                     {getStatusIcon(fileItem.status)}
                     
-                    <Badge variant={
-                      fileItem.status === 'success' ? 'default' :
-                      fileItem.status === 'error' ? 'destructive' :
-                      fileItem.status === 'uploading' ? 'secondary' : 'outline'
-                    }>
+                    <Badge 
+                      variant={
+                        fileItem.status === 'success' ? 'default' :
+                        fileItem.status === 'error' ? 'destructive' :
+                        fileItem.status === 'uploading' ? 'secondary' : 'outline'
+                      }
+                      className="text-[#ffffff]"
+                    >
                       {fileItem.status}
                     </Badge>
 
