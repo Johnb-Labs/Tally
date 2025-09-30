@@ -492,6 +492,74 @@
         </ul>
     </div>
 
+    <div class="page-break"></div>
+
+    <h2>Security & Privacy Features</h2>
+
+    <div class="purpose">
+        Tally implements enterprise-grade security measures to protect your contact data and ensure safe operations.
+    </div>
+
+    <div class="steps">
+        <h3>Session Security</h3>
+        <ul>
+            <li><strong>Secure Authentication:</strong> All login sessions use cryptographically secure session management</li>
+            <li><strong>Session Protection:</strong> Sessions automatically regenerate on login to prevent session hijacking</li>
+            <li><strong>Auto-Logout:</strong> Sessions expire after 7 days of inactivity for your protection</li>
+        </ul>
+
+        <h3>Data Protection</h3>
+        <ul>
+            <li><strong>Password Security:</strong> All passwords are encrypted using industry-standard bcrypt hashing</li>
+            <li><strong>Secure Password Generation:</strong> System-generated passwords use cryptographically secure random generation</li>
+            <li><strong>Data Privacy:</strong> Password hashes are never exposed in API responses or audit logs</li>
+        </ul>
+
+        <h3>Attack Prevention</h3>
+        <ul>
+            <li><strong>Rate Limiting:</strong>
+                <ul>
+                    <li>Login attempts: Limited to 5 attempts per 15 minutes</li>
+                    <li>API requests: Limited to 100 requests per 15 minutes per IP address</li>
+                </ul>
+            </li>
+            <li><strong>CSRF Protection:</strong> Strict cookie policies prevent cross-site request forgery attacks</li>
+            <li><strong>Security Headers:</strong> Advanced headers (CSP, HSTS) protect against common web vulnerabilities</li>
+        </ul>
+
+        <h3>File Upload Security</h3>
+        <ul>
+            <li><strong>File Validation:</strong> Only approved file types (.xlsx, .xls, .csv) are accepted</li>
+            <li><strong>Size Limits:</strong> Maximum 10MB file size to prevent abuse</li>
+            <li><strong>PII Protection:</strong> Uploaded files are automatically excluded from version control</li>
+        </ul>
+
+        <h3>Best Practices for Users</h3>
+        <ol>
+            <li><strong>Strong Passwords:</strong> Use unique passwords with a mix of letters, numbers, and symbols</li>
+            <li><strong>Secure Logout:</strong> Always log out when finished, especially on shared computers</li>
+            <li><strong>Report Suspicious Activity:</strong> Contact your administrator if you notice anything unusual</li>
+            <li><strong>Keep Contact Data Safe:</strong> Only upload approved contact lists with proper consent</li>
+            <li><strong>Regular Updates:</strong> Contact your administrator about security updates</li>
+        </ol>
+
+        <h3>For Administrators</h3>
+        <ul>
+            <li><strong>Audit Logging:</strong> All user actions are logged for compliance and security monitoring</li>
+            <li><strong>User Management:</strong> Regularly review user access and permissions</li>
+            <li><strong>Division Isolation:</strong> Data is properly isolated between divisions for privacy</li>
+            <li><strong>Security Updates:</strong> The system includes the latest security patches (as of September 30, 2025)</li>
+        </ul>
+
+        <h3>Compliance Notes</h3>
+        <ul>
+            <li>Contact data is stored securely in encrypted PostgreSQL databases</li>
+            <li>All data transfers use secure HTTPS connections (in production)</li>
+            <li>Audit logs maintain a complete record of data access and modifications</li>
+            <li>The system supports GDPR and privacy compliance requirements</li>
+        </ul>
+    </div>
+
     <h2>Troubleshooting</h2>
 
     <div class="warning">
@@ -533,7 +601,7 @@
     <div style="margin-top: 50px; text-align: center; color: #666; font-size: 14px;">
         <hr style="margin: 20px 0;">
         <p><strong>Tally by JBLabs</strong> - Contact Management System</p>
-        <p>Generated: January 20, 2025</p>
+        <p>Generated: September 30, 2025</p>
         <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
             <p><strong>To save this as PDF:</strong></p>
             <p>1. Open this HTML file in your browser</p>
