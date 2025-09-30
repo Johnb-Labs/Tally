@@ -35,16 +35,16 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
   };
 
   return (
-    <header className="bg-card border-b border-border px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-foreground">{title}</h1>
+    <header className="bg-card border-b border-border px-4 sm:px-6 py-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-semibold text-foreground truncate">{title}</h1>
           {description && (
             <p className="text-sm text-muted-foreground mt-1">{description}</p>
           )}
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           {/* Theme Toggle */}
           <ThemeToggle />
           
@@ -54,7 +54,7 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
               value={currentDivision?.id.toString() || ""}
               onValueChange={handleDivisionChange}
             >
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48" data-testid="select-division">
                 <SelectValue placeholder="Select Division" />
               </SelectTrigger>
               <SelectContent>
@@ -72,9 +72,9 @@ export default function TopHeader({ title, description, actions }: TopHeaderProp
 
           {/* Default Export Button */}
           {!actions && (
-            <Button onClick={handleExportReport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export Report
+            <Button onClick={handleExportReport} className="w-full sm:w-auto" data-testid="button-export-report">
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export Report</span>
             </Button>
           )}
         </div>

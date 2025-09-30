@@ -16,8 +16,20 @@ import {
   LogOut,
   Database
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
-export default function Sidebar() {
+interface SidebarProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+function SidebarContent({ onLinkClick }: { onLinkClick?: () => void }) {
   const [location] = useLocation();
   const { user } = useAuth();
   const { getEffectiveLogo, getEffectiveOrganizationName, currentDivision } = useBrand();
@@ -55,8 +67,17 @@ export default function Sidebar() {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || user.email?.charAt(0).toUpperCase() || "U";
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return (
-    <div className="w-64 bg-card border-r border-border flex flex-col h-full">
+    <div className="flex flex-col h-full bg-card">
       {/* Brand Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center space-x-3">
@@ -104,14 +125,15 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation Menu */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
         {navigationItems.map((item) =>
           item.show ? (
-            <Link key={item.path} href={item.path}>
+            <Link key={item.path} href={item.path} onClick={onLinkClick}>
               <Button
                 variant={isActive(item.path) ? "default" : "ghost"}
                 className="w-full justify-start"
                 size="sm"
+                data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
               >
                 <item.icon className="w-4 h-4 mr-3" />
                 {item.label}
@@ -128,11 +150,12 @@ export default function Sidebar() {
             </p>
             {adminItems.map((item) =>
               item.show ? (
-                <Link key={item.path} href={item.path}>
+                <Link key={item.path} href={item.path} onClick={onLinkClick}>
                   <Button
                     variant={isActive(item.path) ? "default" : "ghost"}
                     className="w-full justify-start"
                     size="sm"
+                    data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
                     <item.icon className="w-4 h-4 mr-3" />
                     {item.label}
@@ -150,12 +173,36 @@ export default function Sidebar() {
           variant="ghost" 
           className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
           size="sm"
-          onClick={() => window.location.href = "/api/logout"}
+          onClick={handleLogout}
+          data-testid="button-logout"
         >
           <LogOut className="w-4 h-4 mr-3" />
           Logout
         </Button>
       </div>
+    </div>
+  );
+}
+
+export default function Sidebar({ open, onOpenChange }: SidebarProps) {
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent side="left" className="p-0 w-64">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+          </SheetHeader>
+          <SidebarContent onLinkClick={() => onOpenChange?.(false)} />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  return (
+    <div className="w-64 border-r border-border h-full">
+      <SidebarContent />
     </div>
   );
 }
