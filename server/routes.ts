@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
+import crypto from "crypto";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, requireRole } from "./auth";
 import { 
@@ -81,6 +84,35 @@ async function logAudit(
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // SECURITY FIX: Add security headers with Helmet
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+      }
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true
+    }
+  }));
+
+  // SECURITY FIX: Add rate limiting for API endpoints
+  const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again later",
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
+
+  app.use('/api/', apiLimiter);
+
   // Auth middleware
   await setupAuth(app);
 
@@ -116,8 +148,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Generate temporary password
-      const tempPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+      // SECURITY FIX: Generate cryptographically secure temporary password
+      const tempPassword = crypto.randomBytes(16).toString('base64url').slice(0, 16);
       
       const newUser = await storage.createUser({
         ...validation.data,
@@ -129,20 +161,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.assignUserToDivisions(newUser.id, validation.data.divisionIds);
       }
       
+      // SECURITY FIX: Strip sensitive data before logging
+      const { password: _, ...safeUserData } = newUser;
       await logAudit(
         req.user.id,
         'user_created',
         'user',
         newUser.id,
         null,
-        newUser,
+        safeUserData, // Log without password hash
         undefined,
         req
       );
       
+      // SECURITY FIX: Strip password hash from response
+      const { password: __, ...userWithoutPassword } = newUser;
       res.status(201).json({ 
-        user: newUser, 
-        tempPassword 
+        user: userWithoutPassword, // Don't expose password hash
+        tempPassword // Only send temp password once
       });
     } catch (error) {
       console.error("Error creating user:", error);

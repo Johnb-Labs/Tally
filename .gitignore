@@ -4,3 +4,12 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# SECURITY FIX: Exclude uploaded files to prevent PII leaks
+uploads/
+*.csv
+*.xlsx
+*.xls
+/tmp
+/temp
+*.log
