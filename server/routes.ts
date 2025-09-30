@@ -939,6 +939,431 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SQL Import Routes (Admin/Uploader only)
+  app.post("/api/sql-import/test-connection", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+
+      const { dbType, host, port, database, username, password, ssl } = req.body;
+
+      if (!dbType || !host || !database || !username || !password) {
+        return res.status(400).json({ message: "All connection fields are required" });
+      }
+
+      let connection: any = null;
+      let tables: string[] = [];
+
+      try {
+        if (dbType === 'mysql') {
+          const mysql = require('mysql2/promise');
+          connection = await mysql.createConnection({
+            host,
+            port: port || 3306,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: true } : undefined,
+            connectTimeout: 10000,
+            timeout: 30000
+          });
+
+          const [rows] = await connection.query('SHOW TABLES');
+          tables = rows.map((row: any) => Object.values(row)[0] as string);
+        } else if (dbType === 'postgres') {
+          const { Client } = require('pg');
+          connection = new Client({
+            host,
+            port: port || 5432,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: true } : undefined,
+            connectionTimeoutMillis: 10000,
+            statement_timeout: 30000
+          });
+
+          await connection.connect();
+          const result = await connection.query(
+            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'"
+          );
+          tables = result.rows.map((row: any) => row.table_name);
+        } else if (dbType === 'mssql') {
+          const sql = require('mssql');
+          connection = await sql.connect({
+            server: host,
+            port: port || 1433,
+            user: username,
+            password,
+            database,
+            options: {
+              encrypt: ssl || false,
+              trustServerCertificate: ssl ? false : true,
+              connectTimeout: 10000
+            },
+            requestTimeout: 30000
+          });
+
+          const result = await connection.query(
+            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
+          );
+          tables = result.recordset.map((row: any) => row.TABLE_NAME);
+        } else {
+          return res.status(400).json({ message: "Unsupported database type" });
+        }
+
+        res.json({ 
+          success: true, 
+          message: "Connection successful", 
+          tables 
+        });
+      } finally {
+        if (connection) {
+          if (dbType === 'mysql') {
+            await connection.end();
+          } else if (dbType === 'postgres') {
+            await connection.end();
+          } else if (dbType === 'mssql') {
+            await connection.close();
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("SQL connection test error:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Connection failed. Please verify your credentials and host settings." 
+      });
+    }
+  });
+
+  app.post("/api/sql-import/preview", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+
+      const { dbType, host, port, database, username, password, ssl, query } = req.body;
+
+      if (!dbType || !host || !database || !username || !password || !query) {
+        return res.status(400).json({ message: "All fields including query are required" });
+      }
+
+      // Validate that query is SELECT only (read-only) - strict validation
+      const trimmedQuery = query.trim().toLowerCase();
+      if (!trimmedQuery.startsWith('select')) {
+        return res.status(400).json({ message: "Only SELECT queries are allowed" });
+      }
+      
+      // Block dangerous SQL keywords and multiple statements
+      const dangerousKeywords = [
+        'insert', 'update', 'delete', 'drop', 'create', 'alter', 'truncate', 
+        'exec', 'execute', 'grant', 'revoke', 'into', 'outfile', 'infile', 
+        'load', 'copy', 'bulk'
+      ];
+      const hasDangerousKeyword = dangerousKeywords.some(keyword => 
+        trimmedQuery.includes(` ${keyword} `) || 
+        trimmedQuery.includes(`;${keyword}`) ||
+        trimmedQuery.endsWith(keyword) ||
+        trimmedQuery.includes(`${keyword}(`) ||
+        trimmedQuery.includes(`\n${keyword}`)
+      );
+      
+      if (hasDangerousKeyword || trimmedQuery.includes(';')) {
+        return res.status(400).json({ message: "Query contains forbidden operations or multiple statements" });
+      }
+
+      let connection: any = null;
+      let results: any[] = [];
+      let columns: string[] = [];
+
+      try {
+        if (dbType === 'mysql') {
+          const mysql = require('mysql2/promise');
+          connection = await mysql.createConnection({
+            host,
+            port: port || 3306,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: true } : undefined,
+            connectTimeout: 10000,
+            timeout: 30000
+          });
+
+          // Force LIMIT if not present
+          const limitedQuery = query.toLowerCase().includes('limit') ? query : query + ' LIMIT 100';
+          const [rows, fields] = await connection.query(limitedQuery);
+          results = rows as any[];
+          columns = fields.map((f: any) => f.name);
+        } else if (dbType === 'postgres') {
+          const { Client } = require('pg');
+          connection = new Client({
+            host,
+            port: port || 5432,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: true } : undefined,
+            connectionTimeoutMillis: 10000,
+            statement_timeout: 30000
+          });
+
+          await connection.connect();
+          // Set session to read-only
+          await connection.query('SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
+          
+          // Force LIMIT if not present
+          const limitedQuery = query.toLowerCase().includes('limit') ? query : query + ' LIMIT 100';
+          const result = await connection.query(limitedQuery);
+          results = result.rows;
+          columns = result.fields.map((f: any) => f.name);
+        } else if (dbType === 'mssql') {
+          const sql = require('mssql');
+          connection = await sql.connect({
+            server: host,
+            port: port || 1433,
+            user: username,
+            password,
+            database,
+            options: {
+              encrypt: ssl || false,
+              trustServerCertificate: ssl ? false : true,
+              connectTimeout: 10000
+            },
+            requestTimeout: 30000
+          });
+
+          // Force TOP limit if not present
+          const limitedQuery = query.toLowerCase().includes('top') ? query : query.replace(/SELECT/i, 'SELECT TOP 100');
+          const result = await connection.query(limitedQuery);
+          results = result.recordset;
+          columns = Object.keys(results[0] || {});
+        } else {
+          return res.status(400).json({ message: "Unsupported database type" });
+        }
+
+        res.json({ 
+          success: true,
+          columns,
+          data: results,
+          count: results.length
+        });
+      } finally {
+        if (connection) {
+          if (dbType === 'mysql') {
+            await connection.end();
+          } else if (dbType === 'postgres') {
+            await connection.end();
+          } else if (dbType === 'mssql') {
+            await connection.close();
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("SQL preview error:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Failed to preview data. Please check your query and connection settings." 
+      });
+    }
+  });
+
+  app.post("/api/sql-import/execute", isAuthenticated, async (req: any, res) => {
+    try {
+      if (!hasRole(req.user, ['admin', 'uploader'])) {
+        return res.status(403).json({ message: "Admin or Uploader access required" });
+      }
+
+      const { 
+        dbType, 
+        host, 
+        port, 
+        database, 
+        username, 
+        password, 
+        ssl, 
+        query, 
+        divisionId,
+        fieldMapping,
+        categoryId
+      } = req.body;
+
+      if (!dbType || !host || !database || !username || !password || !query || !divisionId || !fieldMapping) {
+        return res.status(400).json({ message: "All fields including division and field mapping are required" });
+      }
+
+      // Validate that query is SELECT only (read-only) - strict validation
+      const trimmedQuery = query.trim().toLowerCase();
+      if (!trimmedQuery.startsWith('select')) {
+        return res.status(400).json({ message: "Only SELECT queries are allowed" });
+      }
+      
+      // Block dangerous SQL keywords and multiple statements
+      const dangerousKeywords = [
+        'insert', 'update', 'delete', 'drop', 'create', 'alter', 'truncate', 
+        'exec', 'execute', 'grant', 'revoke', 'into', 'outfile', 'infile', 
+        'load', 'copy', 'bulk'
+      ];
+      const hasDangerousKeyword = dangerousKeywords.some(keyword => 
+        trimmedQuery.includes(` ${keyword} `) || 
+        trimmedQuery.includes(`;${keyword}`) ||
+        trimmedQuery.endsWith(keyword) ||
+        trimmedQuery.includes(`${keyword}(`) ||
+        trimmedQuery.includes(`\n${keyword}`)
+      );
+      
+      if (hasDangerousKeyword || trimmedQuery.includes(';')) {
+        return res.status(400).json({ message: "Query contains forbidden operations or multiple statements" });
+      }
+
+      let connection: any = null;
+      let results: any[] = [];
+
+      try {
+        // Connect and fetch data
+        if (dbType === 'mysql') {
+          const mysql = require('mysql2/promise');
+          connection = await mysql.createConnection({
+            host,
+            port: port || 3306,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: false } : undefined,
+            connectTimeout: 10000
+          });
+
+          const [rows] = await connection.query(query);
+          results = rows as any[];
+        } else if (dbType === 'postgres') {
+          const { Client } = require('pg');
+          connection = new Client({
+            host,
+            port: port || 5432,
+            user: username,
+            password,
+            database,
+            ssl: ssl ? { rejectUnauthorized: false } : undefined,
+            connectionTimeoutMillis: 10000
+          });
+
+          await connection.connect();
+          const result = await connection.query(query);
+          results = result.rows;
+        } else if (dbType === 'mssql') {
+          const sql = require('mssql');
+          connection = await sql.connect({
+            server: host,
+            port: port || 1433,
+            user: username,
+            password,
+            database,
+            options: {
+              encrypt: ssl || false,
+              trustServerCertificate: true,
+              connectTimeout: 10000
+            }
+          });
+
+          const result = await connection.query(query);
+          results = result.recordset;
+        }
+
+        // Close connection after fetching data
+        if (connection) {
+          if (dbType === 'mysql') {
+            await connection.end();
+          } else if (dbType === 'postgres') {
+            await connection.end();
+          } else if (dbType === 'mssql') {
+            await connection.close();
+          }
+          connection = null;
+        }
+
+        // Import contacts using field mapping
+        let imported = 0;
+        let skipped = 0;
+
+        for (const row of results) {
+          try {
+            const contactData: any = {
+              divisionId: parseInt(divisionId),
+              categoryId: categoryId ? parseInt(categoryId) : null,
+            };
+
+            // Map fields from SQL row to contact fields
+            for (const [contactField, sqlField] of Object.entries(fieldMapping as Record<string, string>)) {
+              if (sqlField && (row as any)[sqlField] !== undefined && (row as any)[sqlField] !== null) {
+                const value = String((row as any)[sqlField]).trim();
+                if (value) {
+                  contactData[contactField] = value;
+                }
+              }
+            }
+
+            // Validate required fields
+            if (!contactData.firstName && !contactData.lastName && !contactData.email) {
+              skipped++;
+              continue;
+            }
+
+            // Validate with schema
+            const validated = insertContactSchema.safeParse(contactData);
+            if (!validated.success) {
+              skipped++;
+              continue;
+            }
+
+            await storage.createContact(validated.data);
+            imported++;
+
+            // Log audit
+            await logAudit(
+              req.user.id,
+              'contact_created',
+              'contact',
+              undefined,
+              null,
+              validated.data,
+              parseInt(divisionId),
+              req
+            );
+          } catch (error) {
+            console.error("Error importing contact:", error);
+            skipped++;
+          }
+        }
+
+        res.json({ 
+          success: true,
+          message: `Import completed: ${imported} contacts imported, ${skipped} skipped`,
+          imported,
+          skipped,
+          total: results.length
+        });
+      } finally {
+        if (connection) {
+          if (dbType === 'mysql') {
+            await connection.end();
+          } else if (dbType === 'postgres') {
+            await connection.end();
+          } else if (dbType === 'mssql') {
+            await connection.close();
+          }
+        }
+      }
+    } catch (error: any) {
+      console.error("SQL import execution error:", error);
+      res.status(500).json({ 
+        success: false,
+        message: "Import failed. Please check your query and try again." 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

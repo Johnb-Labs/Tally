@@ -10,7 +10,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### Latest Updates (January 21, 2025)
+### Latest Updates (September 30, 2025)
+- ✓ Added SQL Database Import functionality
+  - Support for MySQL, PostgreSQL, and MS SQL Server connections
+  - Read-only access with strict query validation
+  - Step-by-step wizard: Connect → Query → Map Fields → Import
+  - Division selection required before import
+  - Auto-mapping of SQL columns to contact fields
+  - Query timeouts and row limits for safety
+  - Comprehensive security validations (no DDL/DML operations)
+
+### Previous Updates (January 21, 2025)
 - ✓ Enhanced field mapping with division selection and auto-mapping
   - Added division selection dropdown in field mapping process
   - Users must specify target division before processing uploads
@@ -76,9 +86,11 @@ Preferred communication style: Simple, everyday language.
 
 ### File Upload & Processing
 - Support for Excel (.xlsx, .xls) and CSV file formats
+- SQL database import from MySQL, PostgreSQL, and MS SQL Server
 - Intelligent field mapping system for flexible data import
 - Progress tracking and error handling for large uploads
 - File validation and size limits (10MB default)
+- Read-only SQL queries with strict security validation
 
 ### Data Management
 - Flexible contact schema with custom field mapping
@@ -116,6 +128,8 @@ Preferred communication style: Simple, everyday language.
 
 ### File Processing
 - **multer**: File upload handling
+- **mysql2**: MySQL database client for SQL imports
+- **mssql**: MS SQL Server client for SQL imports  
 - **connect-pg-simple**: PostgreSQL session store
 - **memoizee**: Function memoization for performance
 

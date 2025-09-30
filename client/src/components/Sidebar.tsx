@@ -30,6 +30,7 @@ export default function Sidebar() {
   const navigationItems = [
     { path: "/", icon: BarChart3, label: "Dashboard", show: true },
     { path: "/upload", icon: Upload, label: "Import Data", show: canUpload },
+    { path: "/sql-import", icon: Database, label: "SQL Import", show: canUpload },
     { path: "/field-mapping", icon: Map, label: "Field Mapping", show: canUpload },
     { path: "/contacts", icon: Users, label: "Contacts", show: true },
     { path: "/reports", icon: FileText, label: "Reports", show: true },

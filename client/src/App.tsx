@@ -12,6 +12,7 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
 import Upload from "@/pages/Upload";
+import SQLImport from "@/pages/SQLImport";
 import FieldMapping from "@/pages/FieldMapping";
 import Contacts from "@/pages/Contacts";
 import Reports from "@/pages/Reports";
@@ -35,6 +36,7 @@ function Router() {
         <>
           <Route path="/" component={Dashboard} />
           <Route path="/upload" component={Upload} />
+          <Route path="/sql-import" component={SQLImport} />
           <Route path="/field-mapping" component={FieldMapping} />
           <Route path="/contacts" component={Contacts} />
           <Route path="/reports" component={Reports} />
