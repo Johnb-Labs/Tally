@@ -1,0 +1,1 @@
+A modern, white-label contact management system with role-based access control, division management, and responsive design. Features Excel/CSV/SQL import, customizable branding, and comprehensive analytics.
