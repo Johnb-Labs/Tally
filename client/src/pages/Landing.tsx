@@ -88,6 +88,7 @@ export default function Landing() {
                 <Button 
                   size="lg" 
                   className="px-8 py-3 text-lg bg-white text-black hover:bg-white/90"
+                  data-testid="button-email-login"
                 >
                   Sign In
                 </Button>
@@ -136,13 +137,15 @@ export default function Landing() {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of organizations already using our platform to manage their contact data efficiently.
           </p>
-          <Button 
-            size="lg" 
-            className="px-8 py-3 text-lg"
-            onClick={() => window.location.href = "/api/login"}
-          >
-            Sign In to Continue
-          </Button>
+          <Link href="/login">
+            <Button 
+              size="lg" 
+              className="px-8 py-3 text-lg"
+              data-testid="button-signin"
+            >
+              Sign In to Continue
+            </Button>
+          </Link>
         </div>
       </div>
     </div>

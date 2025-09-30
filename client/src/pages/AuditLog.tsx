@@ -120,7 +120,8 @@ export default function AuditLog() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </AppLayout>
+        </div>
+      </div>
   );
   }
 
@@ -229,7 +230,7 @@ export default function AuditLog() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
                   />
-                </AppLayout>
+                </div>
 
                 {/* Action Filter */}
                 <Select value={actionFilter} onValueChange={setActionFilter}>
@@ -291,7 +292,7 @@ export default function AuditLog() {
                     <SelectItem value="90days">Last 90 Days</SelectItem>
                   </SelectContent>
                 </Select>
-              </AppLayout>
+              </div>
 
               {/* Active Filters Summary */}
               {(searchQuery || actionFilter !== "all" || entityFilter !== "all" || userFilter !== "all") && (
@@ -342,7 +343,7 @@ export default function AuditLog() {
                   >
                     Clear all
                   </Button>
-                </AppLayout>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -356,12 +357,12 @@ export default function AuditLog() {
                   <CardDescription>
                     {filteredLogs.length} of {auditLogs?.length || 0} entries shown
                   </CardDescription>
-                </AppLayout>
+                </div>
                 <Button variant="outline">
                   <Eye className="w-4 h-4 mr-2" />
                   Export Log
                 </Button>
-              </AppLayout>
+              </div>
             </CardHeader>
             <CardContent>
               {logsLoading ? (
@@ -369,9 +370,9 @@ export default function AuditLog() {
                   {Array.from({ length: 10 }).map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-16 bg-muted rounded-lg"></div>
-                    </AppLayout>
+                    </div>
                   ))}
-                </AppLayout>
+                </div>
               ) : filteredLogs.length > 0 ? (
                 <div className="rounded-md border">
                   <Table>
@@ -408,15 +409,15 @@ export default function AuditLog() {
                                   <p className="text-xs text-muted-foreground">
                                     {log.user?.email}
                                   </p>
-                                </AppLayout>
-                              </AppLayout>
+                                </div>
+                              </div>
                             </TableCell>
                             
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 {getActionIcon(log.action)}
                                 {getActionBadge(log.action)}
-                              </AppLayout>
+                              </div>
                             </TableCell>
                             
                             <TableCell>
@@ -425,7 +426,7 @@ export default function AuditLog() {
                                 <span className="text-sm capitalize">
                                   {log.entityType.replace('_', ' ')}
                                 </span>
-                              </AppLayout>
+                              </div>
                             </TableCell>
                             
                             <TableCell>
@@ -437,9 +438,9 @@ export default function AuditLog() {
                                   <div className="flex items-center text-xs text-muted-foreground mt-1">
                                     <Building className="w-3 h-3 mr-1" />
                                     {log.division.name}
-                                  </AppLayout>
+                                  </div>
                                 )}
-                              </AppLayout>
+                              </div>
                             </TableCell>
                             
                             <TableCell>
@@ -447,12 +448,12 @@ export default function AuditLog() {
                                 <div className="flex items-center text-muted-foreground">
                                   <Calendar className="w-3 h-3 mr-1" />
                                   {dateTime.date}
-                                </AppLayout>
+                                </div>
                                 <div className="flex items-center text-muted-foreground">
                                   <Clock className="w-3 h-3 mr-1" />
                                   {dateTime.time}
-                                </AppLayout>
-                              </AppLayout>
+                                </div>
+                              </div>
                             </TableCell>
                             
                             <TableCell>
@@ -465,7 +466,7 @@ export default function AuditLog() {
                       })}
                     </TableBody>
                   </Table>
-                </AppLayout>
+                </div>
               ) : (
                 <div className="text-center py-12">
                   <History className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
@@ -478,11 +479,11 @@ export default function AuditLog() {
                       : "User activities and system changes will appear here."
                     }
                   </p>
-                </AppLayout>
+                </div>
               )}
             </CardContent>
           </Card>
-        </AppLayout>
+        </div>
       </AppLayout>
   );
 }

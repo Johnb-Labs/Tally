@@ -87,13 +87,13 @@ export default function UserManagement() {
     }
   }, [isAuthenticated, authLoading, user, toast]);
 
-  const { data: users, isLoading: usersLoading } = useQuery({
+  const { data: users = [], isLoading: usersLoading } = useQuery<any[]>({
     queryKey: ["/api/users"],
     enabled: !!user && (user as any).role === 'admin',
     retry: false,
   });
 
-  const { data: divisions } = useQuery({
+  const { data: divisions = [] } = useQuery<any[]>({
     queryKey: ["/api/divisions"],
     enabled: !!user && (user as any).role === 'admin',
     retry: false,
@@ -168,9 +168,9 @@ export default function UserManagement() {
     },
   });
 
-  const createUserMutation = useMutation({
+  const createUserMutation = useMutation<{ tempPassword: string }, Error, any>({
     mutationFn: async (userData: any) => {
-      return await apiRequest('POST', '/api/users', userData);
+      return await apiRequest('POST', '/api/users', userData) as any;
     },
     onSuccess: (data) => {
       toast({
@@ -213,7 +213,8 @@ export default function UserManagement() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </AppLayout>
+        </div>
+      </div>
   );
   }
 
@@ -277,21 +278,18 @@ export default function UserManagement() {
 
   return (
     <AppLayout>
+      <TopHeader 
+        title="User Management"
+        description="Manage user roles, permissions, and division access."
+        actions={
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add User
+          </Button>
+        }
+      />
       
-      
-      
-        <TopHeader 
-          title="User Management"
-          description="Manage user roles, permissions, and division access."
-          actions={
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add User
-            </Button>
-          }
-        />
-        
-        <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-6">
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <Card>
@@ -301,8 +299,8 @@ export default function UserManagement() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Users</p>
                     <p className="text-2xl font-bold">{users?.length || 0}</p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -315,8 +313,8 @@ export default function UserManagement() {
                     <p className="text-2xl font-bold">
                       {users?.filter((u: any) => u.role === 'admin').length || 0}
                     </p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -329,8 +327,8 @@ export default function UserManagement() {
                     <p className="text-2xl font-bold">
                       {users?.filter((u: any) => u.role === 'uploader').length || 0}
                     </p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -341,11 +339,11 @@ export default function UserManagement() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Divisions</p>
                     <p className="text-2xl font-bold">{divisions?.length || 0}</p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          </AppLayout>
+          </div>
 
           {/* Users Table */}
           <Card>
@@ -361,9 +359,9 @@ export default function UserManagement() {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-16 bg-muted rounded-lg"></div>
-                    </AppLayout>
+                    </div>
                   ))}
-                </AppLayout>
+                </div>
               ) : users?.length ? (
                 <div className="rounded-md border">
                   <Table>
@@ -397,9 +395,9 @@ export default function UserManagement() {
                                 <div className="flex items-center text-sm text-muted-foreground">
                                   <Mail className="w-3 h-3 mr-1" />
                                   {userData.email}
-                                </AppLayout>
-                              </AppLayout>
-                            </AppLayout>
+                                </div>
+                              </div>
+                            </div>
                           </TableCell>
                           
                           <TableCell>
@@ -416,14 +414,14 @@ export default function UserManagement() {
                                   {div.canManage && <span className="ml-1">*</span>}
                                 </Badge>
                               )) || <span className="text-muted-foreground">None</span>}
-                            </AppLayout>
+                            </div>
                           </TableCell>
                           
                           <TableCell>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Calendar className="w-3 h-3 mr-1" />
                               {formatDate(userData.createdAt)}
-                            </AppLayout>
+                            </div>
                           </TableCell>
                           
                           <TableCell>
@@ -459,7 +457,7 @@ export default function UserManagement() {
                                         <SelectItem value="admin">Admin - Full access</SelectItem>
                                       </SelectContent>
                                     </Select>
-                                  </AppLayout>
+                                  </div>
                                   
                                   <DialogFooter>
                                     <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
@@ -504,8 +502,8 @@ export default function UserManagement() {
                                     
                                     <div className="text-sm text-muted-foreground">
                                       Current divisions: {userData.divisions?.map((d: any) => d.name).join(', ') || 'None'}
-                                    </AppLayout>
-                                  </AppLayout>
+                                    </div>
+                                  </div>
                                   
                                   <DialogFooter>
                                     <Button variant="outline" onClick={() => setIsDivisionDialogOpen(false)}>
@@ -514,13 +512,13 @@ export default function UserManagement() {
                                   </DialogFooter>
                                 </DialogContent>
                               </Dialog>
-                            </AppLayout>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </AppLayout>
+                </div>
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
@@ -528,132 +526,11 @@ export default function UserManagement() {
                   <p className="text-muted-foreground">
                     Users will appear here once they sign in to the application.
                   </p>
-                </AppLayout>
+                </div>
               )}
             </CardContent>
           </Card>
-        </AppLayout>
+        </div>
       </AppLayout>
-
-      {/* Create User Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
-            <DialogDescription>
-              Add a new user to the system. A temporary password will be generated.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">First Name *</label>
-                <input
-                  type="text"
-                  className="w-full mt-1 px-3 py-2 border rounded-md"
-                  value={newUser.firstName}
-                  onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
-                  placeholder="Enter first name"
-                />
-              </AppLayout>
-              <div>
-                <label className="text-sm font-medium">Last Name *</label>
-                <input
-                  type="text"
-                  className="w-full mt-1 px-3 py-2 border rounded-md"
-                  value={newUser.lastName}
-                  onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
-                  placeholder="Enter last name"
-                />
-              </AppLayout>
-            </AppLayout>
-            
-            <div>
-              <label className="text-sm font-medium">Email Address *</label>
-              <input
-                type="email"
-                className="w-full mt-1 px-3 py-2 border rounded-md"
-                value={newUser.email}
-                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                placeholder="user@example.com"
-              />
-            </AppLayout>
-            
-            <div>
-              <label className="text-sm font-medium">Role</label>
-              <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User - View only access</SelectItem>
-                  <SelectItem value="uploader">Uploader - Can upload and view</SelectItem>
-                  <SelectItem value="exco">Executive - Company-wide view</SelectItem>
-                  <SelectItem value="admin">Admin - Full access</SelectItem>
-                </SelectContent>
-              </Select>
-            </AppLayout>
-            
-            <div>
-              <label className="text-sm font-medium">Divisions (Optional)</label>
-              <Select onValueChange={(value) => {
-                const divisionId = parseInt(value);
-                if (!newUser.divisionIds.includes(divisionId)) {
-                  setNewUser({
-                    ...newUser, 
-                    divisionIds: [...newUser.divisionIds, divisionId]
-                  });
-                }
-              }}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select divisions..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {divisions?.map((division: any) => (
-                    <SelectItem key={division.id} value={division.id.toString()}>
-                      {division.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {newUser.divisionIds.length > 0 && (
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {newUser.divisionIds.map((divId) => {
-                    const division = divisions?.find((d: any) => d.id === divId);
-                    return (
-                      <Badge key={divId} variant="secondary" className="text-xs">
-                        {division?.name}
-                        <button
-                          onClick={() => setNewUser({
-                            ...newUser,
-                            divisionIds: newUser.divisionIds.filter(id => id !== divId)
-                          })}
-                          className="ml-1 hover:text-destructive"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    );
-                  })}
-                </AppLayout>
-              )}
-            </AppLayout>
-          </AppLayout>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleCreateUser}
-              disabled={createUserMutation.isPending}
-            >
-              {createUserMutation.isPending ? "Creating..." : "Create User"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
   );
 }

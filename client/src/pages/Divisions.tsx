@@ -154,7 +154,8 @@ export default function Divisions() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </AppLayout>
+        </div>
+      </div>
   );
   }
 
@@ -248,7 +249,7 @@ export default function Divisions() {
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Enter division name"
                     />
-                  </AppLayout>
+                  </div>
                   
                   <div>
                     <Label htmlFor="create-description">Description</Label>
@@ -259,7 +260,7 @@ export default function Divisions() {
                       placeholder="Describe this division's purpose"
                       rows={3}
                     />
-                  </AppLayout>
+                  </div>
                   
                   <div>
                     <Label htmlFor="create-logo">Logo URL</Label>
@@ -269,7 +270,7 @@ export default function Divisions() {
                       onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
                       placeholder="https://example.com/logo.png"
                     />
-                  </AppLayout>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -287,8 +288,8 @@ export default function Divisions() {
                           onChange={(e) => setFormData(prev => ({ ...prev, primaryColor: e.target.value }))}
                           placeholder="#1976D2"
                         />
-                      </AppLayout>
-                    </AppLayout>
+                      </div>
+                    </div>
                     
                     <div>
                       <Label htmlFor="create-secondary">Secondary Color</Label>
@@ -305,10 +306,10 @@ export default function Divisions() {
                           onChange={(e) => setFormData(prev => ({ ...prev, secondaryColor: e.target.value }))}
                           placeholder="#424242"
                         />
-                      </AppLayout>
-                    </AppLayout>
-                  </AppLayout>
-                </AppLayout>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 
                 <DialogFooter>
                   <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -336,8 +337,8 @@ export default function Divisions() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Divisions</p>
                     <p className="text-2xl font-bold">{divisions?.length || 0}</p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -348,8 +349,8 @@ export default function Divisions() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Active Users</p>
                     <p className="text-2xl font-bold">—</p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -360,8 +361,8 @@ export default function Divisions() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Data Uploads</p>
                     <p className="text-2xl font-bold">—</p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -374,11 +375,11 @@ export default function Divisions() {
                     <p className="text-2xl font-bold">
                       {divisions?.filter((d: any) => d.logoUrl || d.primaryColor !== '#1976D2').length || 0}
                     </p>
-                  </AppLayout>
-                </AppLayout>
+                  </div>
+                </div>
               </CardContent>
             </Card>
-          </AppLayout>
+          </div>
 
           {/* Divisions Grid */}
           <Card>
@@ -394,9 +395,9 @@ export default function Divisions() {
                   {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-48 bg-muted rounded-lg"></div>
-                    </AppLayout>
+                    </div>
                   ))}
-                </AppLayout>
+                </div>
               ) : divisions?.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {divisions.map((division: any) => (
@@ -419,15 +420,15 @@ export default function Divisions() {
                                 style={{ backgroundColor: division.primaryColor || '#1976D2' }}
                               >
                                 <Building className="w-5 h-5 text-white" />
-                              </AppLayout>
+                              </div>
                             )}
                             <div>
                               <h3 className="font-semibold">{division.name}</h3>
                               <Badge variant={division.isActive ? 'default' : 'secondary'}>
                                 {division.isActive ? 'Active' : 'Inactive'}
                               </Badge>
-                            </AppLayout>
-                          </AppLayout>
+                            </div>
+                          </div>
                           
                           <Button 
                             variant="ghost" 
@@ -436,7 +437,7 @@ export default function Divisions() {
                           >
                             <Settings className="w-4 h-4" />
                           </Button>
-                        </AppLayout>
+                        </div>
                         
                         {division.description && (
                           <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
@@ -448,7 +449,7 @@ export default function Divisions() {
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Created</span>
                             <span>{formatDate(division.createdAt)}</span>
-                          </AppLayout>
+                          </div>
                           
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-muted-foreground">Colors</span>
@@ -461,8 +462,8 @@ export default function Divisions() {
                                 className="w-4 h-4 rounded-full border"
                                 style={{ backgroundColor: division.secondaryColor || '#424242' }}
                               ></div>
-                            </AppLayout>
-                          </AppLayout>
+                            </div>
+                          </div>
                           
                           <div className="flex space-x-2 pt-2">
                             <Button variant="outline" size="sm" className="flex-1">
@@ -473,12 +474,12 @@ export default function Divisions() {
                               <Users className="w-3 h-3 mr-1" />
                               Users
                             </Button>
-                          </AppLayout>
-                        </AppLayout>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   ))}
-                </AppLayout>
+                </div>
               ) : (
                 <div className="text-center py-12">
                   <Building className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
@@ -490,12 +491,11 @@ export default function Divisions() {
                     <Plus className="w-4 h-4 mr-2" />
                     Create Division
                   </Button>
-                </AppLayout>
+                </div>
               )}
             </CardContent>
           </Card>
-        </AppLayout>
-      </AppLayout>
+        </div>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -516,7 +516,7 @@ export default function Divisions() {
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter division name"
               />
-            </AppLayout>
+            </div>
             
             <div>
               <Label htmlFor="edit-description">Description</Label>
@@ -527,7 +527,7 @@ export default function Divisions() {
                 placeholder="Describe this division's purpose"
                 rows={3}
               />
-            </AppLayout>
+            </div>
             
             <div>
               <Label htmlFor="edit-logo">Logo URL</Label>
@@ -537,7 +537,7 @@ export default function Divisions() {
                 onChange={(e) => setFormData(prev => ({ ...prev, logoUrl: e.target.value }))}
                 placeholder="https://example.com/logo.png"
               />
-            </AppLayout>
+            </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -555,8 +555,8 @@ export default function Divisions() {
                     onChange={(e) => setFormData(prev => ({ ...prev, primaryColor: e.target.value }))}
                     placeholder="#1976D2"
                   />
-                </AppLayout>
-              </AppLayout>
+                </div>
+              </div>
               
               <div>
                 <Label htmlFor="edit-secondary">Secondary Color</Label>
@@ -573,10 +573,10 @@ export default function Divisions() {
                     onChange={(e) => setFormData(prev => ({ ...prev, secondaryColor: e.target.value }))}
                     placeholder="#424242"
                   />
-                </AppLayout>
-              </AppLayout>
-            </AppLayout>
-          </AppLayout>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
@@ -591,6 +591,6 @@ export default function Divisions() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
+    </AppLayout>
   );
 }

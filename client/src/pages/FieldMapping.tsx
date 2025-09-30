@@ -143,8 +143,9 @@ export default function FieldMapping() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </AppLayout>
-  );
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated || !user) {
@@ -246,8 +247,8 @@ export default function FieldMapping() {
                                   (upload.fileSize / 1024 / 1024).toFixed(2)
                                 } MB
                               </p>
-                            </AppLayout>
-                          </AppLayout>
+                            </div>
+                          </div>
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(upload.status)}
                             {getStatusBadge(upload.status)}
@@ -287,10 +288,10 @@ export default function FieldMapping() {
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
-                          </AppLayout>
-                        </AppLayout>
+                          </div>
+                        </div>
                       ))}
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -315,15 +316,15 @@ export default function FieldMapping() {
                               <p className="text-sm text-muted-foreground">
                                 Processing in progress...
                               </p>
-                            </AppLayout>
-                          </AppLayout>
+                            </div>
+                          </div>
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(upload.status)}
                             {getStatusBadge(upload.status)}
-                          </AppLayout>
-                        </AppLayout>
+                          </div>
+                        </div>
                       ))}
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -356,13 +357,13 @@ export default function FieldMapping() {
                                 <div className="flex items-center space-x-2">
                                   <FileSpreadsheet className="w-4 h-4 text-green-500" />
                                   <span className="font-medium">{upload.originalName}</span>
-                                </AppLayout>
+                                </div>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center space-x-2">
                                   {getStatusIcon(upload.status)}
                                   {getStatusBadge(upload.status)}
-                                </AppLayout>
+                                </div>
                               </TableCell>
                               <TableCell>
                                 {upload.recordsImported ? (
@@ -411,7 +412,7 @@ export default function FieldMapping() {
                           ))}
                         </TableBody>
                       </Table>
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -423,7 +424,7 @@ export default function FieldMapping() {
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                       <p className="text-muted-foreground">Loading uploads...</p>
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
               ) : !uploadsArray.length ? (
@@ -438,13 +439,13 @@ export default function FieldMapping() {
                       <Button onClick={() => window.location.href = "/upload"}>
                         Go to Upload
                       </Button>
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
               ) : null}
             </>
           )}
-        </AppLayout>
+        </div>
       </AppLayout>
   );
 }

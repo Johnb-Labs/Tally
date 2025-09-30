@@ -300,8 +300,9 @@ export default function SQLImport() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </AppLayout>
-  );
+        </div>
+      </div>
+    );
   }
 
   if (!isAuthenticated || !user) {
@@ -334,7 +335,7 @@ export default function SQLImport() {
               <StepIndicator step={3} currentStep={currentStep} label="Map Fields" />
               <div className="h-px w-12 bg-border" />
               <StepIndicator step={4} currentStep={currentStep} label="Import" />
-            </AppLayout>
+            </div>
 
             {/* Step 1: Database Connection */}
             {currentStep === 1 && (
@@ -362,7 +363,7 @@ export default function SQLImport() {
                           <SelectItem value="mssql">MS SQL Server</SelectItem>
                         </SelectContent>
                       </Select>
-                    </AppLayout>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="host">Host</Label>
@@ -373,7 +374,7 @@ export default function SQLImport() {
                         value={host}
                         onChange={(e) => setHost(e.target.value)}
                       />
-                    </AppLayout>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="port">Port (Optional)</Label>
@@ -384,7 +385,7 @@ export default function SQLImport() {
                         value={port}
                         onChange={(e) => setPort(e.target.value)}
                       />
-                    </AppLayout>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="database">Database Name</Label>
@@ -395,7 +396,7 @@ export default function SQLImport() {
                         value={database}
                         onChange={(e) => setDatabase(e.target.value)}
                       />
-                    </AppLayout>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="username">Username</Label>
@@ -406,7 +407,7 @@ export default function SQLImport() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />
-                    </AppLayout>
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="password">Password</Label>
@@ -418,8 +419,8 @@ export default function SQLImport() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
-                    </AppLayout>
-                  </AppLayout>
+                    </div>
+                  </div>
 
                   <div className="flex items-center space-x-2">
                     <Switch 
@@ -429,7 +430,7 @@ export default function SQLImport() {
                       onCheckedChange={setSsl}
                     />
                     <Label htmlFor="ssl">Use SSL/TLS Connection</Label>
-                  </AppLayout>
+                  </div>
 
                   <Button 
                     onClick={testConnection} 
@@ -465,8 +466,8 @@ export default function SQLImport() {
                             {table}
                           </Badge>
                         ))}
-                      </AppLayout>
-                    </AppLayout>
+                      </div>
+                    </div>
                   )}
 
                   <div className="space-y-2">
@@ -480,7 +481,7 @@ export default function SQLImport() {
                       rows={8}
                       className="font-mono text-sm"
                     />
-                  </AppLayout>
+                  </div>
 
                   <div className="flex gap-2">
                     <Button 
@@ -498,7 +499,7 @@ export default function SQLImport() {
                     >
                       Back
                     </Button>
-                  </AppLayout>
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -529,7 +530,7 @@ export default function SQLImport() {
                             ))}
                           </SelectContent>
                         </Select>
-                      </AppLayout>
+                      </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="category">Contact Category (Optional)</Label>
@@ -545,8 +546,8 @@ export default function SQLImport() {
                             ))}
                           </SelectContent>
                         </Select>
-                      </AppLayout>
-                    </AppLayout>
+                      </div>
+                    </div>
 
                     <div className="space-y-3 border rounded-lg p-4">
                       <Label>Field Mapping</Label>
@@ -570,10 +571,10 @@ export default function SQLImport() {
                                 ))}
                               </SelectContent>
                             </Select>
-                          </AppLayout>
-                        </AppLayout>
+                          </div>
+                        </div>
                       ))}
-                    </AppLayout>
+                    </div>
 
                     <div className="flex gap-2">
                       <Button 
@@ -592,7 +593,7 @@ export default function SQLImport() {
                       >
                         Back
                       </Button>
-                    </AppLayout>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -622,7 +623,7 @@ export default function SQLImport() {
                             ))}
                           </TableBody>
                         </Table>
-                      </AppLayout>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
@@ -652,8 +653,8 @@ export default function SQLImport() {
                 </CardContent>
               </Card>
             )}
-          </AppLayout>
-        </AppLayout>
+          </div>
+        </div>
       </AppLayout>
   );
 }
