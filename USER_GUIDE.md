@@ -261,6 +261,53 @@ Users have read-only access to contacts and basic reporting features.
 
 ---
 
+## Security & Privacy Features
+
+Tally implements enterprise-grade security measures to protect your contact data and ensure safe operations.
+
+### Session Security
+- **Secure Authentication**: All login sessions use cryptographically secure session management
+- **Session Protection**: Sessions automatically regenerate on login to prevent session hijacking
+- **Auto-Logout**: Sessions expire after 7 days of inactivity for your protection
+
+### Data Protection
+- **Password Security**: All passwords are encrypted using industry-standard bcrypt hashing
+- **Secure Password Generation**: System-generated passwords use cryptographically secure random generation
+- **Data Privacy**: Password hashes are never exposed in API responses or audit logs
+
+### Attack Prevention
+- **Rate Limiting**: 
+  - Login attempts: Limited to 5 attempts per 15 minutes
+  - API requests: Limited to 100 requests per 15 minutes per IP address
+- **CSRF Protection**: Strict cookie policies prevent cross-site request forgery attacks
+- **Security Headers**: Advanced headers (CSP, HSTS) protect against common web vulnerabilities
+
+### File Upload Security
+- **File Validation**: Only approved file types (.xlsx, .xls, .csv) are accepted
+- **Size Limits**: Maximum 10MB file size to prevent abuse
+- **PII Protection**: Uploaded files are automatically excluded from version control
+
+### Best Practices for Users
+1. **Strong Passwords**: Use unique passwords with a mix of letters, numbers, and symbols
+2. **Secure Logout**: Always log out when finished, especially on shared computers
+3. **Report Suspicious Activity**: Contact your administrator if you notice anything unusual
+4. **Keep Contact Data Safe**: Only upload approved contact lists with proper consent
+5. **Regular Updates**: Contact your administrator about security updates
+
+### For Administrators
+- **Audit Logging**: All user actions are logged for compliance and security monitoring
+- **User Management**: Regularly review user access and permissions
+- **Division Isolation**: Data is properly isolated between divisions for privacy
+- **Security Updates**: The system includes the latest security patches (as of September 30, 2025)
+
+### Compliance Notes
+- Contact data is stored securely in encrypted PostgreSQL databases
+- All data transfers use secure HTTPS connections (in production)
+- Audit logs maintain a complete record of data access and modifications
+- The system supports GDPR and privacy compliance requirements
+
+---
+
 ## Troubleshooting
 
 ### File Upload Issues
