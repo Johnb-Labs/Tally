@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -120,9 +120,8 @@ export default function AuditLog() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+        </AppLayout>
+  );
   }
 
   if (!isAuthenticated || !user || user.role !== 'admin') {
@@ -198,16 +197,16 @@ export default function AuditLog() {
   const uniqueEntities = [...new Set(auditLogs?.map((log: AuditLogEntry) => log.entityType) || [])];
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="Audit Log"
           description="Monitor user activities and system changes for security and compliance."
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           {/* Filters */}
           <Card className="mb-6">
             <CardHeader>
@@ -230,7 +229,7 @@ export default function AuditLog() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10"
                   />
-                </div>
+                </AppLayout>
 
                 {/* Action Filter */}
                 <Select value={actionFilter} onValueChange={setActionFilter}>
@@ -292,7 +291,7 @@ export default function AuditLog() {
                     <SelectItem value="90days">Last 90 Days</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </AppLayout>
 
               {/* Active Filters Summary */}
               {(searchQuery || actionFilter !== "all" || entityFilter !== "all" || userFilter !== "all") && (
@@ -343,7 +342,7 @@ export default function AuditLog() {
                   >
                     Clear all
                   </Button>
-                </div>
+                </AppLayout>
               )}
             </CardContent>
           </Card>
@@ -357,12 +356,12 @@ export default function AuditLog() {
                   <CardDescription>
                     {filteredLogs.length} of {auditLogs?.length || 0} entries shown
                   </CardDescription>
-                </div>
+                </AppLayout>
                 <Button variant="outline">
                   <Eye className="w-4 h-4 mr-2" />
                   Export Log
                 </Button>
-              </div>
+              </AppLayout>
             </CardHeader>
             <CardContent>
               {logsLoading ? (
@@ -370,9 +369,9 @@ export default function AuditLog() {
                   {Array.from({ length: 10 }).map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-16 bg-muted rounded-lg"></div>
-                    </div>
+                    </AppLayout>
                   ))}
-                </div>
+                </AppLayout>
               ) : filteredLogs.length > 0 ? (
                 <div className="rounded-md border">
                   <Table>
@@ -409,15 +408,15 @@ export default function AuditLog() {
                                   <p className="text-xs text-muted-foreground">
                                     {log.user?.email}
                                   </p>
-                                </div>
-                              </div>
+                                </AppLayout>
+                              </AppLayout>
                             </TableCell>
                             
                             <TableCell>
                               <div className="flex items-center space-x-2">
                                 {getActionIcon(log.action)}
                                 {getActionBadge(log.action)}
-                              </div>
+                              </AppLayout>
                             </TableCell>
                             
                             <TableCell>
@@ -426,7 +425,7 @@ export default function AuditLog() {
                                 <span className="text-sm capitalize">
                                   {log.entityType.replace('_', ' ')}
                                 </span>
-                              </div>
+                              </AppLayout>
                             </TableCell>
                             
                             <TableCell>
@@ -438,9 +437,9 @@ export default function AuditLog() {
                                   <div className="flex items-center text-xs text-muted-foreground mt-1">
                                     <Building className="w-3 h-3 mr-1" />
                                     {log.division.name}
-                                  </div>
+                                  </AppLayout>
                                 )}
-                              </div>
+                              </AppLayout>
                             </TableCell>
                             
                             <TableCell>
@@ -448,12 +447,12 @@ export default function AuditLog() {
                                 <div className="flex items-center text-muted-foreground">
                                   <Calendar className="w-3 h-3 mr-1" />
                                   {dateTime.date}
-                                </div>
+                                </AppLayout>
                                 <div className="flex items-center text-muted-foreground">
                                   <Clock className="w-3 h-3 mr-1" />
                                   {dateTime.time}
-                                </div>
-                              </div>
+                                </AppLayout>
+                              </AppLayout>
                             </TableCell>
                             
                             <TableCell>
@@ -466,7 +465,7 @@ export default function AuditLog() {
                       })}
                     </TableBody>
                   </Table>
-                </div>
+                </AppLayout>
               ) : (
                 <div className="text-center py-12">
                   <History className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
@@ -479,12 +478,11 @@ export default function AuditLog() {
                       : "User activities and system changes will appear here."
                     }
                   </p>
-                </div>
+                </AppLayout>
               )}
             </CardContent>
           </Card>
-        </main>
-      </div>
-    </div>
+        </AppLayout>
+      </AppLayout>
   );
 }

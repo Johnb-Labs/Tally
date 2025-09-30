@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -208,16 +208,16 @@ export default function Contacts() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="Contacts"
           description="Manage and search through your contact database."
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
@@ -459,8 +459,7 @@ export default function Contacts() {
               )}
             </CardContent>
           </Card>
-        </main>
-      </div>
-    </div>
+        </div>
+      </AppLayout>
   );
 }

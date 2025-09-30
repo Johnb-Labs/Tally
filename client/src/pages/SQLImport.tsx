@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -300,9 +300,8 @@ export default function SQLImport() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+        </AppLayout>
+  );
   }
 
   if (!isAuthenticated || !user) {
@@ -315,16 +314,16 @@ export default function SQLImport() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="SQL Database Import"
           description="Import contacts directly from an external SQL database (MySQL, PostgreSQL, MS SQL)."
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             {/* Progress Steps */}
             <div className="flex items-center justify-center space-x-4 mb-8">
@@ -335,7 +334,7 @@ export default function SQLImport() {
               <StepIndicator step={3} currentStep={currentStep} label="Map Fields" />
               <div className="h-px w-12 bg-border" />
               <StepIndicator step={4} currentStep={currentStep} label="Import" />
-            </div>
+            </AppLayout>
 
             {/* Step 1: Database Connection */}
             {currentStep === 1 && (
@@ -363,7 +362,7 @@ export default function SQLImport() {
                           <SelectItem value="mssql">MS SQL Server</SelectItem>
                         </SelectContent>
                       </Select>
-                    </div>
+                    </AppLayout>
 
                     <div className="space-y-2">
                       <Label htmlFor="host">Host</Label>
@@ -374,7 +373,7 @@ export default function SQLImport() {
                         value={host}
                         onChange={(e) => setHost(e.target.value)}
                       />
-                    </div>
+                    </AppLayout>
 
                     <div className="space-y-2">
                       <Label htmlFor="port">Port (Optional)</Label>
@@ -385,7 +384,7 @@ export default function SQLImport() {
                         value={port}
                         onChange={(e) => setPort(e.target.value)}
                       />
-                    </div>
+                    </AppLayout>
 
                     <div className="space-y-2">
                       <Label htmlFor="database">Database Name</Label>
@@ -396,7 +395,7 @@ export default function SQLImport() {
                         value={database}
                         onChange={(e) => setDatabase(e.target.value)}
                       />
-                    </div>
+                    </AppLayout>
 
                     <div className="space-y-2">
                       <Label htmlFor="username">Username</Label>
@@ -407,7 +406,7 @@ export default function SQLImport() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />
-                    </div>
+                    </AppLayout>
 
                     <div className="space-y-2">
                       <Label htmlFor="password">Password</Label>
@@ -419,8 +418,8 @@ export default function SQLImport() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
-                    </div>
-                  </div>
+                    </AppLayout>
+                  </AppLayout>
 
                   <div className="flex items-center space-x-2">
                     <Switch 
@@ -430,7 +429,7 @@ export default function SQLImport() {
                       onCheckedChange={setSsl}
                     />
                     <Label htmlFor="ssl">Use SSL/TLS Connection</Label>
-                  </div>
+                  </AppLayout>
 
                   <Button 
                     onClick={testConnection} 
@@ -466,8 +465,8 @@ export default function SQLImport() {
                             {table}
                           </Badge>
                         ))}
-                      </div>
-                    </div>
+                      </AppLayout>
+                    </AppLayout>
                   )}
 
                   <div className="space-y-2">
@@ -481,7 +480,7 @@ export default function SQLImport() {
                       rows={8}
                       className="font-mono text-sm"
                     />
-                  </div>
+                  </AppLayout>
 
                   <div className="flex gap-2">
                     <Button 
@@ -499,7 +498,7 @@ export default function SQLImport() {
                     >
                       Back
                     </Button>
-                  </div>
+                  </AppLayout>
                 </CardContent>
               </Card>
             )}
@@ -530,7 +529,7 @@ export default function SQLImport() {
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
+                      </AppLayout>
 
                       <div className="space-y-2">
                         <Label htmlFor="category">Contact Category (Optional)</Label>
@@ -546,8 +545,8 @@ export default function SQLImport() {
                             ))}
                           </SelectContent>
                         </Select>
-                      </div>
-                    </div>
+                      </AppLayout>
+                    </AppLayout>
 
                     <div className="space-y-3 border rounded-lg p-4">
                       <Label>Field Mapping</Label>
@@ -571,10 +570,10 @@ export default function SQLImport() {
                                 ))}
                               </SelectContent>
                             </Select>
-                          </div>
-                        </div>
+                          </AppLayout>
+                        </AppLayout>
                       ))}
-                    </div>
+                    </AppLayout>
 
                     <div className="flex gap-2">
                       <Button 
@@ -593,7 +592,7 @@ export default function SQLImport() {
                       >
                         Back
                       </Button>
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
 
@@ -623,7 +622,7 @@ export default function SQLImport() {
                             ))}
                           </TableBody>
                         </Table>
-                      </div>
+                      </AppLayout>
                     </CardContent>
                   </Card>
                 )}
@@ -653,10 +652,9 @@ export default function SQLImport() {
                 </CardContent>
               </Card>
             )}
-          </div>
-        </main>
-      </div>
-    </div>
+          </AppLayout>
+        </AppLayout>
+      </AppLayout>
   );
 }
 

@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import FileUploader from "@/components/FileUploader";
 
@@ -64,19 +64,15 @@ export default function Upload() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
+      <TopHeader 
+        title="Import Data"
+        description="Upload Excel (.xlsx, .xls) or CSV files to import contact data."
+      />
       
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <TopHeader 
-          title="Import Data"
-          description="Upload Excel (.xlsx, .xls) or CSV files to import contact data."
-        />
-        
-        <main className="flex-1 overflow-y-auto p-6">
-          <FileUploader />
-        </main>
+      <div className="p-4 sm:p-6">
+        <FileUploader />
       </div>
-    </div>
+    </AppLayout>
   );
 }

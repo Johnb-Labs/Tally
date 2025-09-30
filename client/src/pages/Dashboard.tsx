@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useBrand } from "@/contexts/BrandContext";
 import { useToast } from "@/hooks/use-toast";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import StatsCard from "@/components/StatsCard";
 import ContactGrowthChart from "@/components/ContactGrowthChart";
@@ -177,48 +177,12 @@ export default function Dashboard() {
   // Show company dashboard for company view
   if (selectedView === "all") {
     return (
-      <div className="flex h-screen overflow-hidden bg-background">
-        <Sidebar />
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <TopHeader 
-            title="Dashboard"
-            description="Company-wide overview across all divisions"
-            actions={
-              <div className="flex items-center space-x-3">
-                {canAccessCompanyView && (
-                  <DivisionSelector
-                    value={selectedView}
-                    onValueChange={setSelectedView}
-                    showAllOption={true}
-                  />
-                )}
-                <Button variant="outline">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Report
-                </Button>
-              </div>
-            }
-          />
-          
-          <main className="flex-1 overflow-y-auto p-6 space-y-6">
-            <CompanyDashboard />
-          </main>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <AppLayout>
         <TopHeader 
           title="Dashboard"
-          description="Welcome back! Here's your data overview."
+          description="Company-wide overview across all divisions"
           actions={
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-2">
               {canAccessCompanyView && (
                 <DivisionSelector
                   value={selectedView}
@@ -226,17 +190,46 @@ export default function Dashboard() {
                   showAllOption={true}
                 />
               )}
-              <Button variant="outline" onClick={handleDownloadReport}>
-                <Download className="w-4 h-4 mr-2" />
-                Export Report
+              <Button variant="outline" className="w-full sm:w-auto">
+                <Download className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export Report</span>
               </Button>
             </div>
           }
         />
         
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="p-4 sm:p-6 space-y-6">
+          <CompanyDashboard />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  return (
+    <AppLayout>
+      <TopHeader 
+        title="Dashboard"
+        description="Welcome back! Here's your data overview."
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {canAccessCompanyView && (
+              <DivisionSelector
+                value={selectedView}
+                onValueChange={setSelectedView}
+                showAllOption={true}
+              />
+            )}
+            <Button variant="outline" onClick={handleDownloadReport} className="w-full sm:w-auto">
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export Report</span>
+            </Button>
+          </div>
+        }
+      />
+      
+      <div className="p-4 sm:p-6 space-y-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {statsLoading ? (
               // Loading skeletons
               Array.from({ length: 4 }).map((_, i) => (
@@ -549,8 +542,7 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
-        </main>
-      </div>
-    </div>
-  );
-}
+        </div>
+      </AppLayout>
+    );
+  }

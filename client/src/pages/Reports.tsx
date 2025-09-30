@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useBrand } from "@/contexts/BrandContext";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -227,17 +227,17 @@ export default function Reports() {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title={isCompanyWide ? "Company-wide Reports & Analytics" : `${divisions?.find((d: any) => d.id.toString() === selectedDivisionId)?.name || 'Division'} Reports & Analytics`}
           description={isCompanyWide ? "Comprehensive insights across all divisions and company data." : `Detailed insights for the ${divisions?.find((d: any) => d.id.toString() === selectedDivisionId)?.name || 'selected'} division.`}
           actions={exportActions}
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           <Tabs value={reportType} onValueChange={setReportType} className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -525,8 +525,7 @@ export default function Reports() {
               </Card>
             </TabsContent>
           </Tabs>
-        </main>
-      </div>
-    </div>
+        </div>
+      </AppLayout>
   );
 }

@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -213,9 +213,8 @@ export default function UserManagement() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+        </AppLayout>
+  );
   }
 
   if (!isAuthenticated || !user || user.role !== 'admin') {
@@ -277,10 +276,10 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="User Management"
           description="Manage user roles, permissions, and division access."
@@ -292,7 +291,7 @@ export default function UserManagement() {
           }
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <Card>
@@ -302,8 +301,8 @@ export default function UserManagement() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Users</p>
                     <p className="text-2xl font-bold">{users?.length || 0}</p>
-                  </div>
-                </div>
+                  </AppLayout>
+                </AppLayout>
               </CardContent>
             </Card>
 
@@ -316,8 +315,8 @@ export default function UserManagement() {
                     <p className="text-2xl font-bold">
                       {users?.filter((u: any) => u.role === 'admin').length || 0}
                     </p>
-                  </div>
-                </div>
+                  </AppLayout>
+                </AppLayout>
               </CardContent>
             </Card>
 
@@ -330,8 +329,8 @@ export default function UserManagement() {
                     <p className="text-2xl font-bold">
                       {users?.filter((u: any) => u.role === 'uploader').length || 0}
                     </p>
-                  </div>
-                </div>
+                  </AppLayout>
+                </AppLayout>
               </CardContent>
             </Card>
 
@@ -342,11 +341,11 @@ export default function UserManagement() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Divisions</p>
                     <p className="text-2xl font-bold">{divisions?.length || 0}</p>
-                  </div>
-                </div>
+                  </AppLayout>
+                </AppLayout>
               </CardContent>
             </Card>
-          </div>
+          </AppLayout>
 
           {/* Users Table */}
           <Card>
@@ -362,9 +361,9 @@ export default function UserManagement() {
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i} className="animate-pulse">
                       <div className="h-16 bg-muted rounded-lg"></div>
-                    </div>
+                    </AppLayout>
                   ))}
-                </div>
+                </AppLayout>
               ) : users?.length ? (
                 <div className="rounded-md border">
                   <Table>
@@ -398,9 +397,9 @@ export default function UserManagement() {
                                 <div className="flex items-center text-sm text-muted-foreground">
                                   <Mail className="w-3 h-3 mr-1" />
                                   {userData.email}
-                                </div>
-                              </div>
-                            </div>
+                                </AppLayout>
+                              </AppLayout>
+                            </AppLayout>
                           </TableCell>
                           
                           <TableCell>
@@ -417,14 +416,14 @@ export default function UserManagement() {
                                   {div.canManage && <span className="ml-1">*</span>}
                                 </Badge>
                               )) || <span className="text-muted-foreground">None</span>}
-                            </div>
+                            </AppLayout>
                           </TableCell>
                           
                           <TableCell>
                             <div className="flex items-center text-sm text-muted-foreground">
                               <Calendar className="w-3 h-3 mr-1" />
                               {formatDate(userData.createdAt)}
-                            </div>
+                            </AppLayout>
                           </TableCell>
                           
                           <TableCell>
@@ -460,7 +459,7 @@ export default function UserManagement() {
                                         <SelectItem value="admin">Admin - Full access</SelectItem>
                                       </SelectContent>
                                     </Select>
-                                  </div>
+                                  </AppLayout>
                                   
                                   <DialogFooter>
                                     <Button variant="outline" onClick={() => setIsRoleDialogOpen(false)}>
@@ -505,8 +504,8 @@ export default function UserManagement() {
                                     
                                     <div className="text-sm text-muted-foreground">
                                       Current divisions: {userData.divisions?.map((d: any) => d.name).join(', ') || 'None'}
-                                    </div>
-                                  </div>
+                                    </AppLayout>
+                                  </AppLayout>
                                   
                                   <DialogFooter>
                                     <Button variant="outline" onClick={() => setIsDivisionDialogOpen(false)}>
@@ -515,13 +514,13 @@ export default function UserManagement() {
                                   </DialogFooter>
                                 </DialogContent>
                               </Dialog>
-                            </div>
+                            </AppLayout>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </div>
+                </AppLayout>
               ) : (
                 <div className="text-center py-12">
                   <Users className="w-16 h-16 text-muted-foreground/50 mx-auto mb-4" />
@@ -529,12 +528,12 @@ export default function UserManagement() {
                   <p className="text-muted-foreground">
                     Users will appear here once they sign in to the application.
                   </p>
-                </div>
+                </AppLayout>
               )}
             </CardContent>
           </Card>
-        </main>
-      </div>
+        </AppLayout>
+      </AppLayout>
 
       {/* Create User Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -557,7 +556,7 @@ export default function UserManagement() {
                   onChange={(e) => setNewUser({...newUser, firstName: e.target.value})}
                   placeholder="Enter first name"
                 />
-              </div>
+              </AppLayout>
               <div>
                 <label className="text-sm font-medium">Last Name *</label>
                 <input
@@ -567,8 +566,8 @@ export default function UserManagement() {
                   onChange={(e) => setNewUser({...newUser, lastName: e.target.value})}
                   placeholder="Enter last name"
                 />
-              </div>
-            </div>
+              </AppLayout>
+            </AppLayout>
             
             <div>
               <label className="text-sm font-medium">Email Address *</label>
@@ -579,7 +578,7 @@ export default function UserManagement() {
                 onChange={(e) => setNewUser({...newUser, email: e.target.value})}
                 placeholder="user@example.com"
               />
-            </div>
+            </AppLayout>
             
             <div>
               <label className="text-sm font-medium">Role</label>
@@ -594,7 +593,7 @@ export default function UserManagement() {
                   <SelectItem value="admin">Admin - Full access</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </AppLayout>
             
             <div>
               <label className="text-sm font-medium">Divisions (Optional)</label>
@@ -637,10 +636,10 @@ export default function UserManagement() {
                       </Badge>
                     );
                   })}
-                </div>
+                </AppLayout>
               )}
-            </div>
-          </div>
+            </AppLayout>
+          </AppLayout>
           
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
@@ -655,6 +654,6 @@ export default function UserManagement() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+
   );
 }

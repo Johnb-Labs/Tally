@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { apiRequest } from "@/lib/queryClient";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import FieldMapper from "@/components/FieldMapper";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -143,9 +143,8 @@ export default function FieldMapping() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+        </AppLayout>
+  );
   }
 
   if (!isAuthenticated || !user) {
@@ -206,16 +205,16 @@ export default function FieldMapping() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="Field Mapping"
           description="Map CSV/Excel fields to contact database fields and process uploads."
         />
         
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-6">
           {selectedUpload ? (
             <FieldMapper 
               upload={selectedUpload}
@@ -247,8 +246,8 @@ export default function FieldMapping() {
                                   (upload.fileSize / 1024 / 1024).toFixed(2)
                                 } MB
                               </p>
-                            </div>
-                          </div>
+                            </AppLayout>
+                          </AppLayout>
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(upload.status)}
                             {getStatusBadge(upload.status)}
@@ -288,10 +287,10 @@ export default function FieldMapping() {
                                 </AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
-                          </div>
-                        </div>
+                          </AppLayout>
+                        </AppLayout>
                       ))}
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
               )}
@@ -316,15 +315,15 @@ export default function FieldMapping() {
                               <p className="text-sm text-muted-foreground">
                                 Processing in progress...
                               </p>
-                            </div>
-                          </div>
+                            </AppLayout>
+                          </AppLayout>
                           <div className="flex items-center space-x-3">
                             {getStatusIcon(upload.status)}
                             {getStatusBadge(upload.status)}
-                          </div>
-                        </div>
+                          </AppLayout>
+                        </AppLayout>
                       ))}
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
               )}
@@ -357,13 +356,13 @@ export default function FieldMapping() {
                                 <div className="flex items-center space-x-2">
                                   <FileSpreadsheet className="w-4 h-4 text-green-500" />
                                   <span className="font-medium">{upload.originalName}</span>
-                                </div>
+                                </AppLayout>
                               </TableCell>
                               <TableCell>
                                 <div className="flex items-center space-x-2">
                                   {getStatusIcon(upload.status)}
                                   {getStatusBadge(upload.status)}
-                                </div>
+                                </AppLayout>
                               </TableCell>
                               <TableCell>
                                 {upload.recordsImported ? (
@@ -412,7 +411,7 @@ export default function FieldMapping() {
                           ))}
                         </TableBody>
                       </Table>
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
               )}
@@ -424,7 +423,7 @@ export default function FieldMapping() {
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
                       <p className="text-muted-foreground">Loading uploads...</p>
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
               ) : !uploadsArray.length ? (
@@ -439,14 +438,13 @@ export default function FieldMapping() {
                       <Button onClick={() => window.location.href = "/upload"}>
                         Go to Upload
                       </Button>
-                    </div>
+                    </AppLayout>
                   </CardContent>
                 </Card>
               ) : null}
             </>
           )}
-        </main>
-      </div>
-    </div>
+        </AppLayout>
+      </AppLayout>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import Sidebar from "@/components/Sidebar";
+import AppLayout from "@/components/AppLayout";
 import TopHeader from "@/components/TopHeader";
 import BrandingEditor from "@/components/BrandingEditor";
 
@@ -42,9 +42,8 @@ export default function Branding() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="mt-2 text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+        </AppLayout>
+  );
   }
 
   if (!isAuthenticated || !user || user.role !== 'admin') {
@@ -52,19 +51,18 @@ export default function Branding() {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
+    <AppLayout>
       
-      <div className="flex-1 flex flex-col overflow-hidden">
+      
+      
         <TopHeader 
           title="Branding & Customization"
           description="Customize the appearance and branding of your application."
         />
         
-        <main className="flex-1 overflow-y-auto p-6">
+        <div className="p-4 sm:p-6">
           <BrandingEditor />
-        </main>
-      </div>
-    </div>
+        </AppLayout>
+      </AppLayout>
   );
 }
